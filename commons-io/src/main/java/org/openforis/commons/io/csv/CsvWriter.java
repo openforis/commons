@@ -52,6 +52,10 @@ public class CsvWriter extends CsvProcessor {
 	
 	public void writeNext(FlatRecord r) {
 		String[] line = r.toStringArray();
+		writeNext(line);
+	}
+
+	public void writeNext(String[] line) {
 		csvWriter.writeNext(line);
 		linesWritten++;
 	}
