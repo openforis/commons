@@ -11,4 +11,33 @@
 		<module>commons-io</module>
 	</modules>
 
+    <distributionManagement>
+        <repository>
+          <id>openforis-releases-repository</id>
+          <name>Open Foris Repository</name>
+          <url>http://www.openforis.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+	       <id>openforis-snapshots-repository</id>
+	       <name>Open Foris Snapshots Repository</name>
+          <url>http://www.openforis.org/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+    <scm>
+      <connection>scm:git:git@github.com:openforis/commons.git</connection>
+      <url>scm:git:git@github.com:openforis/commons.git</url>
+      <developerConnection>scm:git:git@github.com:openforis/commons.git</developerConnection>
+      <tag>HEAD</tag>
+    </scm>
+  
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+      </plugins>
+    </build>
 </project>
