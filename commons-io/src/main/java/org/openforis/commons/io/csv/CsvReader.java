@@ -49,6 +49,7 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 		if ( line == null ) {
 			return null;
 		} else {
+			linesRead ++;
 			return new CsvLine(this, line);
 		}
 	}
