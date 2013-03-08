@@ -3,6 +3,7 @@
  */
 package org.openforis.commons.collection;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,14 @@ public class CollectionUtils {
 			return Collections.emptyMap();
 		} else {
 			return Collections.unmodifiableMap(map);
+		}
+	}
+	
+	public static <T> Collection<T> unmodifiableCollection(Collection<? extends T> collection) {
+		if ( collection == null ) {
+			return Collections.emptyList();
+		} else {
+			return Collections.unmodifiableCollection(collection);
 		}
 	}
 	
