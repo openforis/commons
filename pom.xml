@@ -9,6 +9,7 @@
 	<modules>
 		<module>commons-io</module>
 		<module>commons-collections</module>
+		<module>commons-jdbc</module>
 	</modules>
 
 	<distributionManagement>
