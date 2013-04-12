@@ -1,6 +1,7 @@
 package org.openforis.commons.io.csv;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -16,7 +17,7 @@ import static au.com.bytecode.opencsv.CSVWriter.*;
 /**
  * @author G. Miceli
  */
-public class CsvWriter extends CsvProcessor {
+public class CsvWriter extends CsvProcessor implements Closeable {
 	private CSVWriter csvWriter;
 	private long linesWritten; 
 	private boolean headersWritten;
@@ -46,6 +47,7 @@ public class CsvWriter extends CsvProcessor {
 		}
 	}
 
+	@Override
 	public void close() throws IOException {
 		csvWriter.close();
 	}
