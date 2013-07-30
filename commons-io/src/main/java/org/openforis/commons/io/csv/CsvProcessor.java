@@ -45,7 +45,14 @@ abstract class CsvProcessor {
 	protected void setColumnNames(String[] headers) {
 		columns = new LinkedHashMap<String, Integer>();
 		for (int i = 0; i < headers.length; i++) {
-			columns.put(headers[i], i);
+			String header = headers[i];
+			if ( header == null || header.trim().isEmpty() ) {
+				throw new IllegalArgumentException("Empty column heading at index: " + i);
+			}
+			if ( columns.containsKey(header) ) {
+				throw new IllegalArgumentException("Duplicate header: " + header);
+			}
+			columns.put(header, i);
 		}
 	}
 }
