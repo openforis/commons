@@ -16,6 +16,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import static au.com.bytecode.opencsv.CSVWriter.*;
 /**
  * @author G. Miceli
+ * @author S. Ricci
  */
 public class CsvWriter extends CsvProcessor implements Closeable {
 	private CSVWriter csvWriter;
@@ -23,7 +24,11 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 	private boolean headersWritten;
 	
 	public CsvWriter(Writer writer) {
-		csvWriter = new CSVWriter(writer, ',', NO_QUOTE_CHARACTER);
+		this(writer, ',', NO_QUOTE_CHARACTER);
+	}
+	
+	public CsvWriter(Writer writer, char separator, char quotechar) {
+		csvWriter = new CSVWriter(writer, separator, quotechar);
 		linesWritten = 0;
 		headersWritten = false;
 	}
