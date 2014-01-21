@@ -1,8 +1,10 @@
 package org.openforis.commons.io.csv;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.List;
 
@@ -21,9 +23,15 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 	private CSVReader csv;
 	private long linesRead;
 	private boolean headersRead;
+	private File file;
 	
 	public CsvReader(String filename) throws FileNotFoundException {
-		this(new FileReader(filename));
+		this(new File(filename));
+	}
+	
+	public CsvReader(File file) throws FileNotFoundException {
+		this(new FileReader(file));
+		this.file = file;
 	}
 	
 	public CsvReader(Reader reader) {
@@ -75,4 +83,23 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 	public FlatRecord nextRecord() throws IOException {
 		return readNextLine();
 	}
+	
+	/**
+	 * Returns the number of lines including the headers
+	 * @return
+	 * @throws IOException
+	 */
+	public int size() throws IOException{
+		LineNumberReader lineReader = null;
+		try {
+			lineReader = new LineNumberReader(new FileReader(this.file));
+			lineReader.skip(Long.MAX_VALUE);
+			return lineReader.getLineNumber();
+		} catch(IOException e) {
+			throw e;
+		} finally {
+			lineReader.close();
+		}
+	}
+	
 }
