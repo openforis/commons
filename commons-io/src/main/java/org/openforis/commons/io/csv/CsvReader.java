@@ -22,12 +22,23 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 	private long linesRead;
 	private boolean headersRead;
 	
+    public static final char DEFAULT_SEPARATOR = ',';
+    public static final char DEFAULT_QUOTE_CHARACTER = '"';
+
 	public CsvReader(String filename) throws FileNotFoundException {
 		this(new FileReader(filename));
 	}
 	
+	public CsvReader(String fileName, char separator, char quoteChar) throws FileNotFoundException {
+		this(new FileReader(fileName), separator, quoteChar);
+	}
+	
 	public CsvReader(Reader reader) {
-		csv = new CSVReader(reader);
+		this(reader, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
+	}
+	
+	public CsvReader(Reader reader, char separator, char quoteChar) {
+		csv = new CSVReader(reader, separator, quoteChar);
 		headersRead = false;
 		linesRead = 0;
 	}
