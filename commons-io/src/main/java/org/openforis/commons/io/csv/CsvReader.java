@@ -16,6 +16,8 @@ import au.com.bytecode.opencsv.CSVReader;
 /**
  * 
  * @author G. Miceli
+ * @author M. Togna
+ * @author S. Ricci
  *
  */
 public class CsvReader extends CsvProcessor implements FlatDataStream {
@@ -29,22 +31,34 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
     public static final char DEFAULT_QUOTE_CHARACTER = '"';
 
 	public CsvReader(String filename) throws FileNotFoundException {
-		this(new File(filename));
-	}
-	
-	public CsvReader(File file) throws FileNotFoundException {
-		this(new FileReader(file));
-		this.file = file;
+		this(filename, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
 	}
 	
 	public CsvReader(String fileName, char separator, char quoteChar) throws FileNotFoundException {
-		this(new FileReader(fileName), separator, quoteChar);
+		this(new File(fileName), separator, quoteChar);
 	}
 	
+	public CsvReader(File file) throws FileNotFoundException {
+		this(file, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
+	}
+	
+	public CsvReader(File file, char separator, char quoteChar) throws FileNotFoundException {
+		this(new FileReader(file), separator, quoteChar);
+		this.file = file;
+	}
+	
+	/**
+	 * @deprecated Call {@link CsvReader#CsvReader(File)} instead.
+	 */
+	@Deprecated
 	public CsvReader(Reader reader) {
 		this(reader, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
 	}
 	
+	/**
+	 * @deprecated Call {@link CsvReader#CsvReader(File, char, char)} instead.
+	 */
+	@Deprecated
 	public CsvReader(Reader reader, char separator, char quoteChar) {
 		csv = new CSVReader(reader, separator, quoteChar);
 		headersRead = false;
@@ -100,7 +114,10 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 	 * @return
 	 * @throws IOException
 	 */
-	public int size() throws IOException{
+	public int size() throws IOException {
+		if ( this.file == null ) {
+			throw new IllegalStateException("Source file not properly initialized");
+		}
 		LineNumberReader lineReader = null;
 		try {
 			lineReader = new LineNumberReader(new FileReader(this.file));
