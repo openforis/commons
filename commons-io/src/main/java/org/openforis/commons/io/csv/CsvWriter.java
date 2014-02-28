@@ -52,6 +52,10 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 		}
 	}
 
+	public void flush() throws IOException {
+		csvWriter.flush();
+	}
+	
 	@Override
 	public void close() throws IOException {
 		csvWriter.close();
