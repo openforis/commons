@@ -1,4 +1,4 @@
-package org.openforis.schedule;
+package org.openforis.concurrency;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,21 +7,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Synchronously executes a series of Tasks in order.
  * 
  * @author M. Togna
  * @author S. Ricci
  */
-public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
+public class Job extends Worker implements Iterable<Task> {
 	
+	@Autowired
+	private transient BeanFactory beanFactory;
+
 	private int currentTaskIndex;
 
-	private List<Task<J>> tasks;
+	private List<Task> tasks;
 	
 	protected Job() {
 		this.currentTaskIndex = -1;
-		this.tasks = new ArrayList<Task<J>>();
+		this.tasks = new ArrayList<Task>();
 	}
 
 	/**
@@ -31,7 +37,7 @@ public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
 	public void init() {
 		super.init();
 		log().debug("Initializing");
-		for (Task<J> task : tasks) {
+		for (Task task : tasks) {
 			task.init();
 		}
 	}
@@ -52,17 +58,16 @@ public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
 		super.run();
 		log().debug(String.format("Finished in %.1f sec", getDuration() / 1000f));
 	}
-
 	
 	/**
 	 * Runs each contained task in order.
 	 * 
 	 * @throws Exception
 	 */
-	protected final void execute() throws Throwable {
+	protected void execute() throws Throwable {
 		this.currentTaskIndex = -1;
 		while ( hasTaskToRun() ) {
-			Task<J> task = nextTask();
+			Task task = nextTask();
 			
 			task.run();
 			
@@ -76,11 +81,16 @@ public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
 		}
 	}
 	
+	protected <T extends Task> T createTask(Class<T> type) {
+		T task = beanFactory.getBean(type);
+		return task;
+	}
+	
 	protected boolean hasTaskToRun() {
 		return currentTaskIndex + 1 < tasks.size();
 	}
 
-	protected Task<J> nextTask() {
+	protected Task nextTask() {
 		this.currentTaskIndex ++;
 		return tasks.get(currentTaskIndex);
 	}
@@ -90,34 +100,20 @@ public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
 	 * 
 	 * @param task
 	 */
-	@SuppressWarnings("unchecked")
-	public void addTask(Task<J> task) {
+	public <T extends Task> void addTask(T task) {
 		if ( !isPending() ) {
 			throw new IllegalStateException("Cannot add tasks to a job once started");
 		}
-		task.setJob((J) this);
 		tasks.add(task);
 	}
 
-	public <T extends Collection<? extends Task<J>>> void addTasks(T tasks) {
-		for (Task<J> task : tasks) {
+	public <C extends Collection<? extends Task>> void addTasks(C tasks) {
+		for (Task task : tasks) {
 			addTask(task);
 		}
 	}
 
-//	/**
-//	 * Adds a task to the Job
-//	 * @param task The Class of the task we want to add to the Job
-//	 * @return The added Task instance
-//	 */
-//	@SuppressWarnings("unchecked")
-//	public <T extends Task> T addTask(Class<T> task) {
-//		Task newTask = taskManager.createTask(task);
-//		addTask(newTask);
-//		return (T) newTask;
-//	}
-
-	public List<Task<J>> getTasks() {
+	public List<Task> getTasks() {
 		return Collections.unmodifiableList(tasks);
 	}
 
@@ -125,17 +121,17 @@ public class Job<J extends Job<J>> extends Worker implements Iterable<Task<J>> {
 		return this.currentTaskIndex;
 	}
 
-	public Task<J> getCurrentTask() {
+	public Task getCurrentTask() {
 		return currentTaskIndex >= 0 ? tasks.get(currentTaskIndex) : null;
 	}
 	
 	@Override
-	public Iterator<Task<J>> iterator() {
+	public Iterator<Task> iterator() {
 		return getTasks().iterator();
 	}	
 
-	public Worker getTask(UUID taskId) {
-		for (Worker task : tasks) {
+	public Task getTask(UUID taskId) {
+		for (Task task : tasks) {
 			if ( task.getId().equals(taskId) ) {
 				return task;
 			}

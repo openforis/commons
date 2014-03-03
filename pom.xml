@@ -10,7 +10,7 @@
 		<module>commons-io</module>
 		<module>commons-collections</module>
 		<module>commons-jdbc</module>
-		<module>commons-schedule</module>
+		<module>commons-concurrency</module>
 	</modules>
 
 	<distributionManagement>

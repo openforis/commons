@@ -1,4 +1,4 @@
-package org.openforis.schedule;
+package org.openforis.concurrency;
 
 
 /**
@@ -9,15 +9,14 @@ package org.openforis.schedule;
  * @author M. Togna
  * @author S. Ricci
  */
-public abstract class Task<J extends Job<J>> extends Worker {
+public abstract class Task extends Worker {
 
-	private transient J job;
-	
+	private long totalItems;
 	private long itemsProcessed;
 	private long itemsSkipped;
-	private long totalItems;
 
 	public Task() {
+		this.totalItems = -1;
 		this.itemsProcessed = 0;
 		this.itemsSkipped = 0;
 	}
@@ -79,12 +78,4 @@ public abstract class Task<J extends Job<J>> extends Worker {
 		return this.totalItems;
 	}
 
-	public J getJob() {
-		return job;
-	}
-	
-	void setJob(J job) {
-		this.job = job;
-	}
-	
 }

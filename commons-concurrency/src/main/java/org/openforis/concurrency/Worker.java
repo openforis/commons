@@ -1,5 +1,7 @@
-package org.openforis.schedule;
+package org.openforis.concurrency;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -8,38 +10,48 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Base class for asynchronous
  * 
- * @author G. Miceli
+ * @author M. Togna
+ * @author S. Ricci
  * 
  */
 public abstract class Worker {
 
-	private Status status;
 	private UUID id;
 	private long startTime;
 	private long endTime;
+	private Status status;
 	
-	//  deserializing it into json might cause problems
 	private transient Throwable lastException;
 	private transient Log log;
+	private transient List<WorkerStatusChangeListener> statusChangeListeners;
 
 	public enum Status {
 		PENDING, RUNNING, COMPLETED, FAILED, ABORTED;
 	}
 
 	public Worker() {
-		this.status = Status.PENDING;
 		this.startTime = -1;
 		this.endTime = -1;
 		this.lastException = null;
 		this.log = LogFactory.getLog(getClass());
 		this.id = UUID.randomUUID();
+		this.statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
+		this.status = Status.PENDING;
 	}
 
 	synchronized public void init() {
 	}
 
 	protected abstract void execute() throws Throwable;
-
+	
+	public void addStatusChangeListener(WorkerStatusChangeListener listener) {
+		this.statusChangeListeners.add(listener);
+	}
+	
+	public void removeStatusChangeListener(WorkerStatusChangeListener listener) {
+		this.statusChangeListeners.remove(listener);
+	}
+	
 	public String getName() {
 		return getClass().getSimpleName();
 	}
@@ -49,33 +61,32 @@ public abstract class Worker {
 			throw new IllegalStateException("Already run");
 		}
 		try {
-			this.status = Status.RUNNING;
+			changeStatus(Status.RUNNING);
 			this.startTime = System.currentTimeMillis();
 			execute();
-			onBeforeCompleted();
-			this.status = Status.COMPLETED;
+			changeStatus(Status.COMPLETED);
 		} catch (Throwable t) {
-			this.status = Status.FAILED;
+			changeStatus(Status.FAILED);
 			this.lastException = t;
 			log.warn("Task failed");
 			t.printStackTrace();
 		} finally {
 			this.endTime = System.currentTimeMillis();
 			notifyAll();
-			onEnd();
 		}
 	}
 
-	/**
-	 * Called just before the execution ends and before the status changes into {@link Status#COMPLETED}
-	 */
-	protected void onBeforeCompleted() {
+	protected void changeStatus(Status newStatus) {
+		Status oldStatus = this.status;
+		WorkerStatusChangeEvent event = new WorkerStatusChangeEvent(this, oldStatus, newStatus);
+		this.status = newStatus;
+		notifyAllStatusChangeListeners(event);
 	}
-
-	/**
-	 * Called when the process finishes (the status will be {@link Status#COMPLETED}, {@link Worker.Status#FAILED} or {@link Worker.Status#ABORTED}
-	 */
-	protected void onEnd() {
+	
+	protected void notifyAllStatusChangeListeners(WorkerStatusChangeEvent event) {
+		for (WorkerStatusChangeListener listener : statusChangeListeners) {
+			listener.statusChanged(event);
+		}
 	}
 
 	public final long getDuration() {
@@ -137,7 +148,7 @@ public abstract class Worker {
 	}
 
 	public void abort() {
-		status = Status.ABORTED;
+		changeStatus(Status.ABORTED);
 	}
 	
 	public UUID getId() {
@@ -150,7 +161,7 @@ public abstract class Worker {
 
 	public synchronized boolean waitFor(int timeoutMillis) {
 		long start = System.currentTimeMillis();
-		while (!isEnded() && System.currentTimeMillis() - start < timeoutMillis) {
+		while (! isEnded() && System.currentTimeMillis() - start < timeoutMillis) {
 			try {
 				wait(timeoutMillis);
 			} catch (InterruptedException e) {
