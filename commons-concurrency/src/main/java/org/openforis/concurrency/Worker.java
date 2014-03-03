@@ -20,6 +20,7 @@ public abstract class Worker {
 	private long startTime;
 	private long endTime;
 	private Status status;
+	private String errorMessage;
 	
 	private transient Throwable lastException;
 	private transient Log log;
@@ -33,6 +34,7 @@ public abstract class Worker {
 		this.startTime = -1;
 		this.endTime = -1;
 		this.lastException = null;
+		this.errorMessage = null;
 		this.log = LogFactory.getLog(getClass());
 		this.id = UUID.randomUUID();
 		this.statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
@@ -157,6 +159,14 @@ public abstract class Worker {
 
 	protected final Log log() {
 		return this.log;
+	}
+	
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
+	protected void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 	public synchronized boolean waitFor(int timeoutMillis) {

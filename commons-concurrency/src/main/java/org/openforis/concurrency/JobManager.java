@@ -41,11 +41,11 @@ public class JobManager {
 	/**
 	 * Executes a job in the background
 	 */
-	public <J extends Job> void startJob(J job) {
-		startJob(job, null);
+	public <J extends Job> void start(J job) {
+		start(job, null);
 	}
 	
-	synchronized public <J extends Job> void startJob(final J job, final Integer lockId) {
+	synchronized public <J extends Job> void start(final J job, final Integer lockId) {
 		job.init();
 		if ( lockId != null ) {
 			if ( locks.contains(lockId) ) {

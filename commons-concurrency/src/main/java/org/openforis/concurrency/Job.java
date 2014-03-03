@@ -33,6 +33,7 @@ public class Job extends Worker implements Iterable<Task> {
 	/**
 	 * Initializes each contained task in order. Called after all tasks have been added 
 	 * (i.e. not in constructor!)
+	 * @throws Throwable 
 	 */
 	public void init() {
 		super.init();
