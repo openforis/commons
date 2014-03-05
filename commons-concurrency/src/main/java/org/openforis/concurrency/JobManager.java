@@ -47,25 +47,27 @@ public class JobManager {
 	
 	synchronized public <J extends Job> void start(final J job, final Integer lockId) {
 		job.init();
-		if ( lockId != null ) {
-			if ( locks.contains(lockId) ) {
-				throw new RuntimeException("Another job is runnign for the same locking group: " + lockId);
-			} else {
-				locks.add(lockId);
-				jobByLockId.put(lockId, job);
-			}
-		}
-		jobExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					job.run();
-				} finally {
-					if ( lockId != null ) {
-						locks.remove(lockId);
-					}
+		if ( job.isPending() ) {
+			if ( lockId != null ) {
+				if ( locks.contains(lockId) ) {
+					throw new RuntimeException("Another job is runnign for the same locking group: " + lockId);
+				} else {
+					locks.add(lockId);
+					jobByLockId.put(lockId, job);
 				}
 			}
-		});
+			jobExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						job.run();
+					} finally {
+						if ( lockId != null ) {
+							locks.remove(lockId);
+						}
+					}
+				}
+			});
+		}
 	}
 }

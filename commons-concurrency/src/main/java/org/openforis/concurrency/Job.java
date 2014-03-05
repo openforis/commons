@@ -40,6 +40,12 @@ public class Job extends Worker implements Iterable<Task> {
 		log().debug("Initializing");
 		for (Task task : tasks) {
 			task.init();
+			if ( task.isFailed() ) {
+				//stop initialization if a task fails the initialization
+				setErrorMessage(task.getErrorMessage());
+				changeStatus(Status.FAILED);
+				break;
+			}
 		}
 	}
 
@@ -74,9 +80,15 @@ public class Job extends Worker implements Iterable<Task> {
 			
 			switch ( task.getStatus() ) {
 			case FAILED:
-				throw task.getLastException();
+				if ( task.getLastException() != null ) {
+					throw task.getLastException();
+				} else {
+					this.changeStatus(Status.FAILED);
+				}
+				break;
 			case ABORTED:
 				abort();
+				break;
 			default:
 			}
 		}
@@ -88,7 +100,7 @@ public class Job extends Worker implements Iterable<Task> {
 	}
 	
 	protected boolean hasTaskToRun() {
-		return currentTaskIndex + 1 < tasks.size();
+		return isRunning() && currentTaskIndex + 1 < tasks.size();
 	}
 
 	protected Task nextTask() {

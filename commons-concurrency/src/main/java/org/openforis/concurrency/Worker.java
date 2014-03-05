@@ -70,8 +70,8 @@ public abstract class Worker {
 		} catch (Throwable t) {
 			changeStatus(Status.FAILED);
 			this.lastException = t;
-			log.warn("Task failed");
-			t.printStackTrace();
+			this.errorMessage = t.getMessage();
+			log.warn("Task failed", t);
 		} finally {
 			this.endTime = System.currentTimeMillis();
 			notifyAll();
