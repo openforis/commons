@@ -22,13 +22,11 @@ public abstract class Task extends Worker {
 	}
 	
 	@Override
-	public synchronized void init() {
-		super.init();
+	protected void initInternal() throws Throwable {
+		super.initInternal();
 		this.totalItems = countTotalItems();
 	}
 	
-	// TODO
-	// protected abstract long countTotalItems();
 	protected long countTotalItems() {
 		return -1;
 	};

@@ -27,7 +27,7 @@ public abstract class Worker {
 	private transient List<WorkerStatusChangeListener> statusChangeListeners;
 
 	public enum Status {
-		PENDING, RUNNING, COMPLETED, FAILED, ABORTED;
+		PENDING, INITIALIZED, RUNNING, COMPLETED, FAILED, ABORTED;
 	}
 
 	public Worker() {
@@ -40,8 +40,23 @@ public abstract class Worker {
 		this.statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
 		this.status = Status.PENDING;
 	}
-
-	synchronized public void init() {
+	
+	public void configure() {
+	}
+	
+	protected final void init() {
+		log().debug("Initializing");
+		try {
+			initInternal();
+		} catch ( Throwable t ) {
+			log().error("Error initializing worker: " + t.getMessage(), t);
+			errorMessage = t.getMessage();
+			lastException = t;
+			changeStatus(Status.FAILED);
+		}
+	}
+	
+	protected void initInternal() throws Throwable {
 	}
 
 	protected abstract void execute() throws Throwable;
@@ -66,15 +81,18 @@ public abstract class Worker {
 			changeStatus(Status.RUNNING);
 			this.startTime = System.currentTimeMillis();
 			execute();
-			changeStatus(Status.COMPLETED);
+			if ( isRunning() ) {
+				changeStatus(Status.COMPLETED);
+			}
 		} catch (Throwable t) {
-			changeStatus(Status.FAILED);
 			this.lastException = t;
 			this.errorMessage = t.getMessage();
+			changeStatus(Status.FAILED);
 			log.warn("Task failed", t);
 		} finally {
 			this.endTime = System.currentTimeMillis();
 			notifyAll();
+			onEnd();
 		}
 	}
 
@@ -83,8 +101,33 @@ public abstract class Worker {
 		WorkerStatusChangeEvent event = new WorkerStatusChangeEvent(this, oldStatus, newStatus);
 		this.status = newStatus;
 		notifyAllStatusChangeListeners(event);
+		switch ( newStatus ) {
+		case COMPLETED:
+			onCompleted();
+			break;
+		case FAILED:
+			onFailed();
+			break;
+		case ABORTED:
+			onAborted();
+			break;
+		default:
+			break;
+		}
 	}
 	
+	protected void onEnd() {
+	}
+	
+	protected void onCompleted() {
+	}
+
+	protected void onFailed() {
+	}
+
+	protected void onAborted() {
+	}
+
 	protected void notifyAllStatusChangeListeners(WorkerStatusChangeEvent event) {
 		for (WorkerStatusChangeListener listener : statusChangeListeners) {
 			listener.statusChanged(event);
@@ -169,6 +212,10 @@ public abstract class Worker {
 		this.errorMessage = errorMessage;
 	}
 
+	protected void setLastException(Throwable lastException) {
+		this.lastException = lastException;
+	}
+	
 	public synchronized boolean waitFor(int timeoutMillis) {
 		long start = System.currentTimeMillis();
 		while (! isEnded() && System.currentTimeMillis() - start < timeoutMillis) {

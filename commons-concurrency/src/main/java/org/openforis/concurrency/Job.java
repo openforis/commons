@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.BeanFactory;
+import org.openforis.concurrency.Worker.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -16,10 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author M. Togna
  * @author S. Ricci
  */
-public class Job extends Worker implements Iterable<Task> {
+public abstract class Job extends Worker implements Iterable<Task> {
 	
 	@Autowired
-	private transient BeanFactory beanFactory;
+	private transient JobManager jobManager;
 
 	private int currentTaskIndex;
 
@@ -31,24 +31,14 @@ public class Job extends Worker implements Iterable<Task> {
 	}
 
 	/**
-	 * Initializes each contained task in order. Called after all tasks have been added 
-	 * (i.e. not in constructor!)
+	 * Builds all the tasks. Each task will be initialized before running it.
 	 * @throws Throwable 
 	 */
-	public void init() {
-		super.init();
-		log().debug("Initializing");
-		for (Task task : tasks) {
-			task.init();
-			if ( task.isFailed() ) {
-				//stop initialization if a task fails the initialization
-				setErrorMessage(task.getErrorMessage());
-				changeStatus(Status.FAILED);
-				break;
-			}
-		}
+	@Override
+	protected void initInternal() throws Throwable {
+		buildAndAddTasks();
 	}
-
+	
 	@Override
 	public int getProgressPercent() {
 		if ( getStatus() == Status.RUNNING ) {
@@ -76,9 +66,26 @@ public class Job extends Worker implements Iterable<Task> {
 		while ( hasTaskToRun() ) {
 			Task task = nextTask();
 			
-			task.run();
+			prepareTask(task);
 			
+			if ( task.isPending() ) {
+				runTask(task);
+			} else {
+				setErrorMessage(task.getErrorMessage());
+				setLastException(task.getLastException());
+				changeStatus(Status.FAILED);
+			}
+		}
+	}
+
+	protected void runTask(Task task) throws Throwable {
+		try {
+			task.run();
+
 			switch ( task.getStatus() ) {
+			case COMPLETED:
+				onTaskCompleted(task);
+				break;
 			case FAILED:
 				if ( task.getLastException() != null ) {
 					throw task.getLastException();
@@ -91,11 +98,15 @@ public class Job extends Worker implements Iterable<Task> {
 				break;
 			default:
 			}
+		} finally {
+			onTaskEnd(task);
 		}
 	}
-	
+
+	protected abstract void buildAndAddTasks() throws Throwable;
+
 	protected <T extends Task> T createTask(Class<T> type) {
-		T task = beanFactory.getBean(type);
+		T task = jobManager.createTask(type);
 		return task;
 	}
 	
@@ -109,23 +120,58 @@ public class Job extends Worker implements Iterable<Task> {
 	}
 
 	/**
+	 * Creates and adds a task of the specified type.
+	 * @param type
+	 * @return
+	 */
+	protected <T extends Task> T addTask(Class<T> type) {
+		T task = createTask(type);
+		addTask(task);
+		return task;
+	}
+	
+	/**
 	 * Throws IllegalStateException if invoked after run() is called
 	 * 
 	 * @param task
 	 */
-	public <T extends Task> void addTask(T task) {
+	protected <T extends Task> void addTask(T task) {
 		if ( !isPending() ) {
 			throw new IllegalStateException("Cannot add tasks to a job once started");
 		}
 		tasks.add(task);
 	}
 
-	public <C extends Collection<? extends Task>> void addTasks(C tasks) {
+	protected <C extends Collection<? extends Task>> void addTasks(C tasks) {
 		for (Task task : tasks) {
 			addTask(task);
 		}
 	}
 
+	/**
+	 * Called when the task ends its execution. The status can be {@link Status#COMPLETED}, {@link Status#FAILED}, {@link Status#ABORTED}
+	 * @param task
+	 */
+	protected void onTaskEnd(Task task) {
+		
+	}
+
+	/**
+	 * Called when the task ends its execution with the status {@link Status#COMPLETED}
+	 * @param task
+	 */
+	protected void onTaskCompleted(Task task) {
+		onTaskEnd(task);
+	}
+
+	/**
+	 * Called before task execution.
+	 * @param task
+	 */
+	protected void prepareTask(Task task) {
+		task.init();
+	}
+	
 	public List<Task> getTasks() {
 		return Collections.unmodifiableList(tasks);
 	}
@@ -152,4 +198,11 @@ public class Job extends Worker implements Iterable<Task> {
 		return null;
 	}
 
+	public JobManager getJobManager() {
+		return jobManager;
+	}
+	
+	protected void setJobManager(JobManager jobManager) {
+		this.jobManager = jobManager;
+	}
 }
