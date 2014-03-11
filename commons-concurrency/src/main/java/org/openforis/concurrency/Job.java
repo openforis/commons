@@ -41,11 +41,18 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	
 	@Override
 	public int getProgressPercent() {
-		if ( getStatus() == Status.RUNNING ) {
-			int currentTaskProgress = getCurrentTask().getProgressPercent();
-			return 100 * ( currentTaskIndex + currentTaskProgress  / 100 ) / tasks.size();
-		} else {
+		switch ( getStatus() ) {
+		case COMPLETED:
+			return 100;
+		case PENDING:
 			return 0;
+		default:
+			Task currentTask = getCurrentTask();
+			int currentTaskProgress = currentTask == null ? 0: currentTask.getProgressPercent();
+			double tasksNum = Integer.valueOf(tasks.size()).doubleValue();
+			double result = ( 100d * currentTaskIndex + currentTaskProgress ) / tasksNum;
+			//round result to integer
+			return Double.valueOf(Math.floor(result)).intValue();
 		}
 	}
 	
@@ -161,7 +168,6 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @param task
 	 */
 	protected void onTaskCompleted(Task task) {
-		onTaskEnd(task);
 	}
 
 	/**
@@ -205,4 +211,5 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	protected void setJobManager(JobManager jobManager) {
 		this.jobManager = jobManager;
 	}
+	
 }

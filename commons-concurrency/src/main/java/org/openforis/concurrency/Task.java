@@ -52,15 +52,15 @@ public abstract class Task extends Worker {
 		switch ( getStatus() ) {
 		case COMPLETED:
 			return 100;
-		case RUNNING:
+		case PENDING:
+			return 0;
+		default:
 			if ( totalItems > 0 ) {
-				int result = Double.valueOf(Math.ceil( ( itemsProcessed + itemsSkipped ) * 100 / totalItems )).intValue();
+				int result = Double.valueOf(Math.ceil( (double) ( ( itemsProcessed + itemsSkipped ) * 100d / totalItems ) ) ).intValue();
 				return result;
 			} else {
 				return 0;
 			}
-		default:
-			return 0;
 		}
 	}
 	
