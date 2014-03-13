@@ -16,18 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author M. Togna
  * @author S. Ricci
  */
-public abstract class Job extends Worker implements Iterable<Task> {
+public abstract class Job extends Worker implements Iterable<Task<?>> {
 	
 	@Autowired
 	private transient JobManager jobManager;
 
 	private int currentTaskIndex;
 
-	private List<Task> tasks;
+	private List<Task<?>> tasks;
 	
 	protected Job() {
 		this.currentTaskIndex = -1;
-		this.tasks = new ArrayList<Task>();
+		this.tasks = new ArrayList<Task<?>>();
 	}
 
 	/**
@@ -47,7 +47,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		case PENDING:
 			return 0;
 		default:
-			Task currentTask = getCurrentTask();
+			Task<?> currentTask = getCurrentTask();
 			int currentTaskProgress = currentTask == null ? 0: currentTask.getProgressPercent();
 			double tasksNum = Integer.valueOf(tasks.size()).doubleValue();
 			double result = ( 100d * currentTaskIndex + currentTaskProgress ) / tasksNum;
@@ -71,9 +71,9 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	protected void execute() throws Throwable {
 		this.currentTaskIndex = -1;
 		while ( hasTaskToRun() ) {
-			Task task = nextTask();
+			Task<?> task = nextTask();
 			
-			prepareTask(task);
+			task.init();
 			
 			if ( task.isPending() ) {
 				runTask(task);
@@ -85,7 +85,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		}
 	}
 
-	protected void runTask(Task task) throws Throwable {
+	protected void runTask(Task<?> task) throws Throwable {
 		try {
 			task.run();
 
@@ -112,7 +112,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 
 	protected abstract void buildAndAddTasks() throws Throwable;
 
-	protected <T extends Task> T createTask(Class<T> type) {
+	protected <T extends Task<?>> T createTask(Class<T> type) {
 		T task = jobManager.createTask(type);
 		return task;
 	}
@@ -121,7 +121,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return isRunning() && currentTaskIndex + 1 < tasks.size();
 	}
 
-	protected Task nextTask() {
+	protected Task<?> nextTask() {
 		this.currentTaskIndex ++;
 		return tasks.get(currentTaskIndex);
 	}
@@ -131,7 +131,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @param type
 	 * @return
 	 */
-	protected <T extends Task> T addTask(Class<T> type) {
+	protected <T extends Task<?>> T addTask(Class<T> type) {
 		T task = createTask(type);
 		addTask(task);
 		return task;
@@ -142,15 +142,15 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * 
 	 * @param task
 	 */
-	protected <T extends Task> void addTask(T task) {
+	protected <T extends Task<?>> void addTask(T task) {
 		if ( !isPending() ) {
 			throw new IllegalStateException("Cannot add tasks to a job once started");
 		}
 		tasks.add(task);
 	}
 
-	protected <C extends Collection<? extends Task>> void addTasks(C tasks) {
-		for (Task task : tasks) {
+	protected <C extends Collection<? extends Task<?>>> void addTasks(C tasks) {
+		for (Task<?> task : tasks) {
 			addTask(task);
 		}
 	}
@@ -159,7 +159,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * Called when the task ends its execution. The status can be {@link Status#COMPLETED}, {@link Status#FAILED}, {@link Status#ABORTED}
 	 * @param task
 	 */
-	protected void onTaskEnd(Task task) {
+	protected void onTaskEnd(Task<?> task) {
 		
 	}
 
@@ -167,18 +167,18 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * Called when the task ends its execution with the status {@link Status#COMPLETED}
 	 * @param task
 	 */
-	protected void onTaskCompleted(Task task) {
+	protected void onTaskCompleted(Task<?> task) {
 	}
 
 	/**
 	 * Called before task execution.
 	 * @param task
 	 */
-	protected void prepareTask(Task task) {
+	protected void prepareTask(Task<?> task) {
 		task.init();
 	}
 	
-	public List<Task> getTasks() {
+	public List<Task<?>> getTasks() {
 		return Collections.unmodifiableList(tasks);
 	}
 
@@ -186,17 +186,17 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return this.currentTaskIndex;
 	}
 
-	public Task getCurrentTask() {
+	public Task<?> getCurrentTask() {
 		return currentTaskIndex >= 0 ? tasks.get(currentTaskIndex) : null;
 	}
 	
 	@Override
-	public Iterator<Task> iterator() {
+	public Iterator<Task<?>> iterator() {
 		return getTasks().iterator();
 	}	
 
-	public Task getTask(UUID taskId) {
-		for (Task task : tasks) {
+	public Task<?> getTask(UUID taskId) {
+		for (Task<?> task : tasks) {
 			if ( task.getId().equals(taskId) ) {
 				return task;
 			}
@@ -208,7 +208,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return jobManager;
 	}
 	
-	protected void setJobManager(JobManager jobManager) {
+	public void setJobManager(JobManager jobManager) {
 		this.jobManager = jobManager;
 	}
 	

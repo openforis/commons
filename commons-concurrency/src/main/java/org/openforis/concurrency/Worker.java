@@ -41,7 +41,7 @@ public abstract class Worker {
 		this.status = Status.PENDING;
 	}
 	
-	protected final void init() {
+	public final void init() {
 		log().debug("Initializing");
 		try {
 			initInternal();

@@ -10,7 +10,7 @@ public interface JobManager {
 	
 	<J extends Job> J createJob(Class<J> type);
 
-	<T extends Task> T createTask(Class<T> type);
+	<T extends Task<?>> T createTask(Class<T> type);
 
 	<J extends Job> void start(J job);
 

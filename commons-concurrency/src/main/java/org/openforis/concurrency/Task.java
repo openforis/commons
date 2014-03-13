@@ -9,8 +9,9 @@ package org.openforis.concurrency;
  * @author M. Togna
  * @author S. Ricci
  */
-public abstract class Task extends Worker {
+public abstract class Task<J extends Job> extends Worker {
 
+	private J job;
 	private long totalItems;
 	private long itemsProcessed;
 	private long itemsSkipped;
@@ -62,6 +63,14 @@ public abstract class Task extends Worker {
 				return 0;
 			}
 		}
+	}
+	
+	public void setJob(J job) {
+		this.job = job;
+	}
+	
+	protected J getJob() {
+		return job;
 	}
 	
 	public long getItemsProcessed() {

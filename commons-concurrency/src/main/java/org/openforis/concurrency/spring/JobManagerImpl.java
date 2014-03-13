@@ -1,4 +1,4 @@
-package org.openforis.concurrency;
+package org.openforis.concurrency.spring;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import org.openforis.concurrency.Job;
+import org.openforis.concurrency.JobManager;
+import org.openforis.concurrency.Task;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class SpringJobManager implements JobManager {
+public class JobManagerImpl implements JobManager {
 	
 //	private Log LOG = LogFactory.getLog(SpringJobManager.class);
 	
@@ -30,7 +33,7 @@ public class SpringJobManager implements JobManager {
 
 	private Map<String, Job> jobByLockId;
 	
-	public SpringJobManager() {
+	public JobManagerImpl() {
 		jobByLockId = new HashMap<String, Job>();
 		locks = new HashSet<String>();
 	}
@@ -43,7 +46,7 @@ public class SpringJobManager implements JobManager {
 	}
 
 	@Override
-	public <T extends Task> T createTask(Class<T> type) {
+	public <T extends Task<?>> T createTask(Class<T> type) {
 		T task = beanFactory.getBean(type);
 		return task;
 	}
