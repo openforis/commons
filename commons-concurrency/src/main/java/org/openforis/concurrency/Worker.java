@@ -27,7 +27,7 @@ public abstract class Worker {
 	private transient List<WorkerStatusChangeListener> statusChangeListeners;
 
 	public enum Status {
-		PENDING, INITIALIZED, RUNNING, COMPLETED, FAILED, ABORTED;
+		PENDING, RUNNING, COMPLETED, FAILED, ABORTED;
 	}
 
 	public Worker() {
@@ -39,9 +39,6 @@ public abstract class Worker {
 		this.id = UUID.randomUUID();
 		this.statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
 		this.status = Status.PENDING;
-	}
-	
-	public void configure() {
 	}
 	
 	protected final void init() {
