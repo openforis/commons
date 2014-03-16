@@ -71,7 +71,7 @@ public abstract class Worker {
 	}
 
 	public synchronized void run() {
-		if (!isPending()) {
+		if ( ! isPending() ) {
 			throw new IllegalStateException("Already run");
 		}
 		try {
@@ -165,7 +165,7 @@ public abstract class Worker {
 	public abstract int getProgressPercent();
 	
 	/**
-	 * If task was run and finished, aborted or failed
+	 * If task was run and the status is {@link Status#COMPLETED}, {@link Status#FAILED}, {@link Status#ABORTED}
 	 * 
 	 * @return
 	 */

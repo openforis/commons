@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author M. Togna
  * @author S. Ricci
  */
-public abstract class Job extends Worker implements Iterable<Task<?>> {
+public class Job extends Worker implements Iterable<Task<?>> {
 	
 	@Autowired
 	private transient JobManager jobManager;
@@ -30,15 +30,6 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 		this.tasks = new ArrayList<Task<?>>();
 	}
 
-	/**
-	 * Builds all the tasks. Each task will be initialized before running it.
-	 * @throws Throwable 
-	 */
-	@Override
-	protected void initInternal() throws Throwable {
-		buildAndAddTasks();
-	}
-	
 	@Override
 	public int getProgressPercent() {
 		switch ( getStatus() ) {
@@ -73,7 +64,7 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 		while ( hasTaskToRun() ) {
 			Task<?> task = nextTask();
 			
-			task.init();
+			prepareTask(task);
 			
 			if ( task.isPending() ) {
 				runTask(task);
@@ -110,8 +101,6 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 		}
 	}
 
-	protected abstract void buildAndAddTasks() throws Throwable;
-
 	protected <T extends Task<?>> T createTask(Class<T> type) {
 		T task = jobManager.createTask(type);
 		return task;
@@ -131,7 +120,7 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 	 * @param type
 	 * @return
 	 */
-	protected <T extends Task<?>> T addTask(Class<T> type) {
+	public <T extends Task<?>> T addTask(Class<T> type) {
 		T task = createTask(type);
 		addTask(task);
 		return task;
@@ -142,14 +131,14 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 	 * 
 	 * @param task
 	 */
-	protected <T extends Task<?>> void addTask(T task) {
+	public <T extends Task<?>> void addTask(T task) {
 		if ( !isPending() ) {
 			throw new IllegalStateException("Cannot add tasks to a job once started");
 		}
 		tasks.add(task);
 	}
 
-	protected <C extends Collection<? extends Task<?>>> void addTasks(C tasks) {
+	public <C extends Collection<? extends Task<?>>> void addTasks(C tasks) {
 		for (Task<?> task : tasks) {
 			addTask(task);
 		}
@@ -170,10 +159,6 @@ public abstract class Job extends Worker implements Iterable<Task<?>> {
 	protected void onTaskCompleted(Task<?> task) {
 	}
 
-	/**
-	 * Called before task execution.
-	 * @param task
-	 */
 	protected void prepareTask(Task<?> task) {
 		task.init();
 	}

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JobManagerImpl implements JobManager {
 	
-//	private Log LOG = LogFactory.getLog(SpringJobManager.class);
+//	private Log LOG = LogFactory.getLog(JobManagerImpl.class);
 	
 	@Autowired
 	private BeanFactory beanFactory;
