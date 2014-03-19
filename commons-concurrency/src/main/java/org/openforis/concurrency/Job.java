@@ -36,7 +36,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 */
 	@Override
 	protected void initInternal() throws Throwable {
-		buildAndAddTasks();
+		buildTasks();
 	}
 	
 	@Override
@@ -48,11 +48,15 @@ public abstract class Job extends Worker implements Iterable<Task> {
 			return 0;
 		default:
 			Task currentTask = getCurrentTask();
-			int currentTaskProgress = currentTask == null ? 0: currentTask.getProgressPercent();
-			double tasksNum = Integer.valueOf(tasks.size()).doubleValue();
-			double result = ( 100d * currentTaskIndex + currentTaskProgress ) / tasksNum;
-			//round result to integer
-			return Double.valueOf(Math.floor(result)).intValue();
+			if ( currentTask == null ) {
+				return 0;
+			} else {
+				int currentTaskProgress = currentTask == null ? 0: currentTask.getProgressPercent();
+				double tasksNum = Integer.valueOf(tasks.size()).doubleValue();
+				double result = ( 100d * currentTaskIndex + currentTaskProgress ) / tasksNum;
+				//round result to integer
+				return Double.valueOf(Math.floor(result)).intValue();
+			}
 		}
 	}
 	
@@ -110,7 +114,11 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		}
 	}
 
-	protected abstract void buildAndAddTasks() throws Throwable;
+	/**
+	 * Creates and adds tasks to this job.
+	 * @throws Throwable
+	 */
+	protected abstract void buildTasks() throws Throwable;
 
 	protected <T extends Task> T createTask(Class<T> type) {
 		T task = jobManager.createTask(type);
@@ -208,7 +216,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return jobManager;
 	}
 	
-	protected void setJobManager(JobManager jobManager) {
+	public void setJobManager(JobManager jobManager) {
 		this.jobManager = jobManager;
 	}
 	

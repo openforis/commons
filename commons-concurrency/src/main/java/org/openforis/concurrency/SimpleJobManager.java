@@ -5,47 +5,45 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Executor;
-
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.concurrent.Executors;
 
 /**
  * 
  * @author S. Ricci
  *
  */
-@Component
-public class SpringJobManager implements JobManager {
-	
-//	private Log LOG = LogFactory.getLog(SpringJobManager.class);
-	
-	@Autowired
-	private BeanFactory beanFactory;
-
-	@Autowired
-	private Executor jobExecutor;
+public class SimpleJobManager implements JobManager {
 	
 	private Collection<String> locks;
-
 	private Map<String, Job> jobByLockId;
 	
-	public SpringJobManager() {
+	private Executor jobExecutor;
+	
+	public SimpleJobManager() {
 		jobByLockId = new HashMap<String, Job>();
 		locks = new HashSet<String>();
+		jobExecutor = Executors.newCachedThreadPool();
 	}
 	
 	@Override
 	public <J extends Job> J createJob(Class<J> type) {
-		J job = beanFactory.getBean(type);
-		job.setJobManager(this);
-		return job;
+		try {
+			J job = type.newInstance();
+			job.setJobManager(this);
+			return job;
+		} catch (Exception e) {
+			throw new RuntimeException("Error instanciating job of type " + type.getName());
+		}
 	}
 
 	@Override
 	public <T extends Task> T createTask(Class<T> type) {
-		T task = beanFactory.getBean(type);
-		return task;
+		try {
+			T task = type.newInstance();
+			return task;
+		} catch (Exception e) {
+			throw new RuntimeException("Error instanciating job of type " + type.getName());
+		}
 	}
 	
 	/**
@@ -114,5 +112,13 @@ public class SpringJobManager implements JobManager {
 				locks.remove(lockId);
 			}
 		}
+	}
+	
+	public Executor getJobExecutor() {
+		return jobExecutor;
+	}
+	
+	protected void setJobExecutor(Executor jobExecutor) {
+		this.jobExecutor = jobExecutor;
 	}
 }
