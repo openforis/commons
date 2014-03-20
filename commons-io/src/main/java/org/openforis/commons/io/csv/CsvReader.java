@@ -1,5 +1,6 @@
 package org.openforis.commons.io.csv;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -20,7 +21,7 @@ import au.com.bytecode.opencsv.CSVReader;
  * @author S. Ricci
  *
  */
-public class CsvReader extends CsvProcessor implements FlatDataStream {
+public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable {
 
 	private CSVReader csv;
 	private long linesRead;
@@ -87,6 +88,7 @@ public class CsvReader extends CsvProcessor implements FlatDataStream {
 		}
 	}
 	
+	@Override
 	public void close() throws IOException {
 		csv.close();
 	}
