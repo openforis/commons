@@ -1,6 +1,8 @@
 package org.openforis.commons.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,6 +53,18 @@ public class OpenForisIOUtils {
 	public static InputStreamReader toReader(InputStream is) {
 		try {
 			return new InputStreamReader(is, UTF_8);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Reader toReader(File file) throws FileNotFoundException {
+		return toReader(file, OpenForisIOUtils.UTF_8);
+	}
+	
+	public static Reader toReader(File file, String charsetName) throws FileNotFoundException {
+		try {
+			return new InputStreamReader(new FileInputStream(file), charsetName);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}

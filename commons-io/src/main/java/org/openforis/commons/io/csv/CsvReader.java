@@ -9,6 +9,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.List;
 
+import org.openforis.commons.io.OpenForisIOUtils;
 import org.openforis.commons.io.flat.FlatDataStream;
 import org.openforis.commons.io.flat.FlatRecord;
 
@@ -44,7 +45,11 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	}
 	
 	public CsvReader(File file, char separator, char quoteChar) throws FileNotFoundException {
-		this(new FileReader(file), separator, quoteChar);
+		this(file, OpenForisIOUtils.UTF_8, separator, quoteChar);
+	}
+	
+	public CsvReader(File file, String charsetName, char separator, char quoteChar) throws FileNotFoundException {
+		this(OpenForisIOUtils.toReader(file, charsetName), separator, quoteChar);
 		this.file = file;
 	}
 	
