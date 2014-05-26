@@ -5,15 +5,17 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.List;
 
+import org.openforis.commons.io.OpenForisIOUtils;
 import org.openforis.commons.io.flat.FlatDataStream;
 import org.openforis.commons.io.flat.FlatRecord;
 
 import au.com.bytecode.opencsv.CSVWriter;
-
 import static au.com.bytecode.opencsv.CSVWriter.*;
+
 /**
  * @author G. Miceli
  * @author S. Ricci
@@ -32,9 +34,20 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 		linesWritten = 0;
 		headersWritten = false;
 	}
-	
-	public CsvWriter(OutputStream out) {
-		this(new BufferedWriter(new OutputStreamWriter(out)));
+
+	/**
+	 * Constructs the writer using the specified {@link OutputStream} to write the CSV file.
+	 * The default charset encoding will be UTF_8
+	 */
+	public CsvWriter(OutputStream out) throws UnsupportedEncodingException {
+		this(out, OpenForisIOUtils.UTF_8);
+	}
+
+	/**
+	 * Constructs the writer useing the specified {@link OutputStream} and the specified charset encoding to write the CSV file.
+	 */
+	public CsvWriter(OutputStream out, String charsetName) throws UnsupportedEncodingException {
+		this(new BufferedWriter(new OutputStreamWriter(out, charsetName)));
 	}
 
 	public void writeAll(FlatDataStream in) throws IOException {
