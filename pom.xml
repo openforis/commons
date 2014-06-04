@@ -11,6 +11,7 @@
 		<module>commons-collections</module>
 		<module>commons-jdbc</module>
 		<module>commons-concurrency</module>
+		<module>commons-versioning</module>
 	</modules>
 
 	<distributionManagement>
@@ -74,4 +75,15 @@
 			
 		</plugins>
 	</build>
+	
+	<dependencyManagement>
+	    <dependencies>
+	        <dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.10</version>
+			</dependency>
+	    </dependencies>
+	</dependencyManagement>
+	
 </project>
