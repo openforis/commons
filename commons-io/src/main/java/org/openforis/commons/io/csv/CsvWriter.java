@@ -21,12 +21,16 @@ import static au.com.bytecode.opencsv.CSVWriter.*;
  * @author S. Ricci
  */
 public class CsvWriter extends CsvProcessor implements Closeable {
+	
+	private static final char COMMA = ',';
+	private static final char DEFAULT_SEPARATOR = COMMA;
+	
 	private CSVWriter csvWriter;
 	private long linesWritten; 
 	private boolean headersWritten;
 	
 	public CsvWriter(Writer writer) {
-		this(writer, ',', NO_QUOTE_CHARACTER);
+		this(writer, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
 	}
 	
 	public CsvWriter(Writer writer, char separator, char quotechar) {
@@ -40,14 +44,18 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 	 * The default charset encoding will be UTF_8
 	 */
 	public CsvWriter(OutputStream out) throws UnsupportedEncodingException {
-		this(out, OpenForisIOUtils.UTF_8);
+		this(out, OpenForisIOUtils.UTF_8, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
 	}
 
 	/**
-	 * Constructs the writer useing the specified {@link OutputStream} and the specified charset encoding to write the CSV file.
+	 * Constructs the writer using the specified {@link OutputStream} and the specified charset encoding to write the CSV file.
 	 */
 	public CsvWriter(OutputStream out, String charsetName) throws UnsupportedEncodingException {
-		this(new BufferedWriter(new OutputStreamWriter(out, charsetName)));
+		this(out, charsetName, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
+	}
+	
+	public CsvWriter(OutputStream out, String charsetName, char separator, char quotechar) {
+		this(new BufferedWriter(new OutputStreamWriter(out)), separator, quotechar);
 	}
 
 	public void writeAll(FlatDataStream in) throws IOException {
