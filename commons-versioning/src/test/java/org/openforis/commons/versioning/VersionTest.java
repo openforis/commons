@@ -3,6 +3,7 @@ package org.openforis.commons.versioning;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openforis.commons.versioning.Version.Significance;
 import org.openforis.commons.versioning.Version.TestType;
 
 /**
@@ -18,7 +19,7 @@ public class VersionTest {
 			Version v = new Version( "1.2.3-a14-SNAPSHOT" );
 			assertEquals( 1, v.getMajor() );
 			assertEquals( 2, v.getMinor() );
-			assertEquals( Integer.valueOf(3), v.getRevision() );
+			assertEquals( Integer.valueOf(3), v.getBuild() );
 			assertEquals( TestType.ALPHA, v.getTestType() );
 			assertTrue( v.isAlpha() );
 			assertEquals( 1, v.getTestLevel() );
@@ -29,7 +30,7 @@ public class VersionTest {
 			Version v = new Version( "10.20-SNAPSHOT" );
 			assertEquals( 10, v.getMajor() );
 			assertEquals( 20, v.getMinor() );
-			assertNull( v.getRevision() );
+			assertNull( v.getBuild() );
 			assertNull( v.getTestType() );
 			assertEquals( Integer.MAX_VALUE, v.getTestLevel() );
 			assertNull( v.getTestVersion() );
@@ -39,7 +40,7 @@ public class VersionTest {
 			Version v = new Version( "10.20.3" );
 			assertEquals( 10, v.getMajor() );
 			assertEquals( 20, v.getMinor() );
-			assertEquals( Integer.valueOf(3), v.getRevision() );
+			assertEquals( Integer.valueOf(3), v.getBuild() );
 			assertNull( v.getTestVersion() );
 			assertFalse( v.isSnapshot() );
 		}
@@ -91,4 +92,15 @@ public class VersionTest {
 		}
 	}
 
+	@Test
+	public void testCompareWithSignificance() {
+		{
+			//equals
+			Version v1 = new Version("1.2.3-a1-SNAPSHOT");
+			Version v2 = new Version("1.2.2-a1-SNAPSHOT");
+			assertEquals( 0, v1.compareTo(v2, Significance.MAJOR) );
+			assertEquals( 0, v1.compareTo(v2, Significance.MINOR) );
+			assertEquals( 1, v1.compareTo(v2, Significance.BUILD) );
+		}
+	}
 }

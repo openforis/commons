@@ -1,5 +1,7 @@
 package org.openforis.commons.versioning;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,11 +9,16 @@ import java.util.regex.Pattern;
  * Extracts informations from a version number containing major, minor, revision, alpha and beta numbers.
  * 
  * @author S. Ricci
+ * @author D. Wiell
  */
 public class Version implements Comparable<Version> {
 
 	private static final String VERSION_PATTERN = "(\\d+)\\.(\\d+)(\\.(\\d+))?(-(a|b|Alpha|Beta)(\\d+)?)?(-SNAPSHOT)?";
 
+	public enum Significance {
+		MAJOR, MINOR, BUILD, TEST_LEVEL, TEST_VERSION, SNAPSHOT
+	}
+	
 	public enum TestType {
 		ALPHA	("a", "Alpha"), 
 		BETA	("b", "Beta");
@@ -53,7 +60,7 @@ public class Version implements Comparable<Version> {
 	
 	private int major;
 	private int minor;
-	private Integer rev;
+	private Integer build;
 	private TestType testType;
 	private Integer testVersion;
 	private boolean snapshot;
@@ -67,7 +74,7 @@ public class Version implements Comparable<Version> {
 	    this.minor = Integer.parseInt(m.group(2));
 	    
 	    if ( m.group(3) != null ) {
-	    	this.rev = Integer.parseInt(m.group(4));
+	    	this.build = Integer.parseInt(m.group(4));
 	    }
 	    //Test type (a or b)
 	    if ( m.group(5) != null ) {
@@ -93,12 +100,12 @@ public class Version implements Comparable<Version> {
 		this.minor = minor;
 	}
 	
-	public Integer getRevision() {
-		return rev;
+	public Integer getBuild() {
+		return build;
 	}
 	
-	public void setRevision(Integer rev) {
-		this.rev = rev;
+	public void setBuild(Integer build) {
+		this.build = build;
 	}
 	
 	public TestType getTestType() {
@@ -162,43 +169,33 @@ public class Version implements Comparable<Version> {
 		}
 	}
 	
-	@Override
-	public int compareTo(Version o) {
-		//compare major release
-		int result = compareIntegers(major, o.major);
-		if ( result == 0 ) {
-			//compare minor release
-			result = compareIntegers(minor, o.minor);
-			if ( result == 0 ) {
-				//compare revision
-				result = compareIntegers(rev, o.rev);
-				if ( result == 0 ) {
-					//compare test level
-					result = compareIntegers(getTestLevel(), o.getTestLevel());
-					if ( result == 0 ) {
-						//compare test version
-						result = compareIntegers(testVersion, o.getTestVersion());
-						if ( result == 0 ) {
-							//snapshot version is considered less than final version
-							result = - ( Boolean.valueOf(snapshot).compareTo(o.snapshot) );
-						}
-					}
-				}
-			}
-		}
+	private List<Integer> toList() {
+		List<Integer> result = Arrays.asList(
+				major, 
+				minor, 
+				build == null ? 0: build, 
+				getTestLevel(), 
+				testVersion == null ? Integer.MAX_VALUE: testVersion, 
+				snapshot ? 0: 1
+		);
 		return result;
 	}
 	
-	private static int compareIntegers(Integer n1, Integer n2) {
-		if ( n1 == null && n2 == null ) {
-			return 0;
-		} else if ( n1 == null ) {
-			return -1;
-		} else if ( n2 == null ) {
-			return 1;
-		} else {
-			return n1.compareTo(n2);
+	@Override
+	public int compareTo(Version o) {
+		return compareTo(o, Significance.SNAPSHOT);
+	}
+	
+	public int compareTo(Version o, Significance significance) {
+		List<Integer> list1 = toList().subList(0, significance.ordinal() + 1);
+		List<Integer> list2 = o.toList().subList(0, significance.ordinal() + 1);
+		for (int i = 0; i < list1.size(); i++) {
+			int compareTo = list1.get(i).compareTo(list2.get(i));
+			if ( compareTo != 0 ) {
+				return compareTo;
+			}
 		}
+		return 0;
 	}
 	
 	@Override
@@ -207,9 +204,9 @@ public class Version implements Comparable<Version> {
 		sb.append(major);
 		sb.append(".");
 		sb.append(minor);
-		if ( rev != null ) {
+		if ( build != null ) {
 			sb.append(".");
-			sb.append(rev);
+			sb.append(build);
 		}
 		if ( testType != null ) {
 			sb.append("-");
