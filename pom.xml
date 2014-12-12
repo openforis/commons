@@ -12,6 +12,7 @@
 		<module>commons-jdbc</module>
 		<module>commons-concurrency</module>
 		<module>commons-versioning</module>
+		<module>commons-web</module>
 	</modules>
 
 	<distributionManagement>
