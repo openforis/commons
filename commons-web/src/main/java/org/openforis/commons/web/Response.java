@@ -25,11 +25,11 @@ public class Response {
 	private List<ObjectError> errors;
 	private Map<String, Object> fields;
 	
-	Response() {
+	public Response() {
 		this(null);
 	}
 
-	Response( List<ObjectError> errors ) {
+	public Response(List<ObjectError> errors) {
 		fields = new HashMap<String, Object>();
 		if (errors != null && !errors.isEmpty()) {
 			setStatus(Status.ERROR);
