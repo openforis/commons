@@ -48,6 +48,10 @@ public class Response {
 		this.status = status;
 	}
 
+	public boolean isStatusOk() {
+		return status == Status.OK;
+	}
+	
 	void setOkStatus() {
 		setStatus(Status.OK);
 	}
