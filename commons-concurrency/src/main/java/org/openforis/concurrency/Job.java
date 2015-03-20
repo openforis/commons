@@ -67,6 +67,15 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		log().debug(String.format("Finished in %.1f sec", getDuration() / 1000f));
 	}
 	
+	@Override
+	public void abort() {
+		super.abort();
+		Task currentTask = getCurrentTask();
+		if (currentTask != null) {
+			currentTask.abort();
+		}
+	}
+	
 	/**
 	 * Runs each contained task in order.
 	 * 
