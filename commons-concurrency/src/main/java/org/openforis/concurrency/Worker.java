@@ -93,6 +93,10 @@ public abstract class Worker {
 		}
 	}
 
+	public void abort() {
+		changeStatus(Status.ABORTED);
+	}
+	
 	protected void changeStatus(Status newStatus) {
 		Status oldStatus = this.status;
 		WorkerStatusChangeEvent event = new WorkerStatusChangeEvent(this, oldStatus, newStatus);
@@ -189,10 +193,6 @@ public abstract class Worker {
 		return this.lastException;
 	}
 
-	public void abort() {
-		changeStatus(Status.ABORTED);
-	}
-	
 	public UUID getId() {
 		return id;
 	}

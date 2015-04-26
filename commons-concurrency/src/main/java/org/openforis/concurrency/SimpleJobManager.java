@@ -92,7 +92,7 @@ public class SimpleJobManager implements JobManager {
 	}
 
 	protected <J extends Job> void lock(final J job, final String lockId) {
-		if ( locks.contains(lockId) ) {
+		if ( locks.contains(lockId) && jobByLockId.containsKey(lockId) && jobByLockId.get(lockId).isRunning() ) {
 			throw new RuntimeException("Another job is runnign for the same locking group: " + lockId);
 		} else {
 			locks.add(lockId);
@@ -100,6 +100,10 @@ public class SimpleJobManager implements JobManager {
 		}
 	}
 
+	public Job getJob(String lockId) {
+		return jobByLockId.get(lockId);
+	}
+	
 	protected synchronized void release(String lockId) {
 		locks.remove(lockId);
 	}
