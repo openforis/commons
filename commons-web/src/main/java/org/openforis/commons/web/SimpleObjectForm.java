@@ -1,6 +1,6 @@
 package org.openforis.commons.web;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import org.springframework.beans.BeanUtils;
 
 /**
  * 
@@ -18,15 +18,15 @@ public class SimpleObjectForm<T extends Object> {
 
 	public void initializeFromObject(T obj) {
 		try {
-			PropertyUtils.copyProperties(this, obj);
+			BeanUtils.copyProperties(obj, this);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void copyTo(T obj) {
+	public void copyTo(T target, String... ignoreProperties) {
 		try {
-			PropertyUtils.copyProperties(obj, this);
+			BeanUtils.copyProperties(this, target, ignoreProperties);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
