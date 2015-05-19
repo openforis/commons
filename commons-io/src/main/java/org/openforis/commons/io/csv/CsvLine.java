@@ -16,6 +16,7 @@ import org.openforis.commons.io.flat.FlatRecord;
  *
  */
 public class CsvLine implements FlatRecord {
+	
 	private Map<String, Integer> columns;
 	private String[] line;
 	private CsvReader csvReader;

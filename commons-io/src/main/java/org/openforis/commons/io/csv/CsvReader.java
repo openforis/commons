@@ -3,17 +3,16 @@ package org.openforis.commons.io.csv;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.Reader;
+import java.text.DateFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.openforis.commons.io.OpenForisIOUtils;
+import org.openforis.commons.io.csv.ExcelReader.ExcelParseException;
 import org.openforis.commons.io.flat.FlatDataStream;
 import org.openforis.commons.io.flat.FlatRecord;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * 
@@ -24,10 +23,9 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable {
 
-	private CSVReader csv;
-	private long linesRead;
-	private boolean headersRead;
-	private File file;
+	private final CsvReaderDelegate delegate;
+
+	private IOException delegateConstructionException;
 	
     public static final char DEFAULT_SEPARATOR = ',';
     public static final char DEFAULT_QUOTE_CHARACTER = '"';
@@ -41,7 +39,7 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	}
 	
 	public CsvReader(File file) throws FileNotFoundException {
-		this(file, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
+		this(file, OpenForisIOUtils.UTF_8, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER);
 	}
 	
 	public CsvReader(File file, char separator, char quoteChar) throws FileNotFoundException {
@@ -49,8 +47,7 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	}
 	
 	public CsvReader(File file, String charsetName, char separator, char quoteChar) throws FileNotFoundException {
-		this(OpenForisIOUtils.toReader(file, charsetName), separator, quoteChar);
-		this.file = file;
+		this.delegate = createDelegate(file, charsetName, separator, quoteChar, this);
 	}
 	
 	/**
@@ -66,54 +63,68 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	 */
 	@Deprecated
 	public CsvReader(Reader reader, char separator, char quoteChar) {
-		csv = new CSVReader(reader, separator, quoteChar);
-		headersRead = false;
-		linesRead = 0;
+		this.delegate = new OpenCsvReader(reader, separator, quoteChar, this);
 	}
 
-	public void readHeaders() throws IOException {
-		if ( headersRead ) {
-			throw new IllegalStateException("Headers already read");
+	private static CsvReaderDelegate createDelegate(File file, String charsetName, char separator, char quoteChar, 
+			CsvReader csvReader) throws FileNotFoundException {
+		try {
+			return new ExcelReader(file, csvReader);
+		} catch(ExcelParseException e) {
+			try {
+				return new OpenCsvReader(file, charsetName, separator, quoteChar, csvReader);
+			} catch(IOException ex) {
+				csvReader.delegateConstructionException = ex;
+				return null;
+			}
 		}
-		String[] headers = csv.readNext();
-		setColumnNames(headers);
-		headersRead = true;
+	}
+	
+	public void readHeaders() throws IOException {
+		checkDelegate();
+		delegate.readHeaders();
 	}
 
 	public CsvLine readNextLine() throws IOException {
-		if ( !headersRead ) {
-			throw new IllegalStateException("Headers must be read first");
-		}
-		String[] line = csv.readNext();
-		if ( line == null ) {
-			return null;
-		} else {
-			linesRead ++;
-			return new CsvLine(this, line);
-		}
+		return delegate.readNextLine();
 	}
 	
 	@Override
 	public void close() throws IOException {
-		csv.close();
+		delegate.close();
 	}
 
 	public boolean isHeadersRead() {
-		return headersRead;
+		return delegate.isHeadersRead();
 	}
 
 	public long getLinesRead() {
-		return linesRead;
+		return delegate.getLinesRead();
 	}
 	
 	@Override
 	public List<String> getFieldNames() {
-		return getColumnNames();
+		return delegate.getFieldNames();
 	}
 
 	@Override
 	public FlatRecord nextRecord() throws IOException {
-		return readNextLine();
+		return delegate.nextRecord();
+	}
+	
+	@Override
+	public List<String> getColumnNames() {
+		return delegate.getColumnNames();
+	}
+	
+	@Override
+	public DateFormat getDateFormat() {
+		return delegate.getDateFormat();
+	}
+	
+	@Override
+	Map<String, Integer> getColumnIndices() {
+		return delegate.getColumnIndices();
 	}
 	
 	/**
@@ -122,19 +133,13 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	 * @throws IOException
 	 */
 	public int size() throws IOException {
-		if ( this.file == null ) {
-			throw new IllegalStateException("Source file not properly initialized");
-		}
-		LineNumberReader lineReader = null;
-		try {
-			lineReader = new LineNumberReader(new FileReader(this.file));
-			lineReader.skip(Long.MAX_VALUE);
-			return lineReader.getLineNumber();
-		} catch(IOException e) {
-			throw e;
-		} finally {
-			lineReader.close();
-		}
+		return delegate.size();
 	}
 	
+	private void checkDelegate() throws IOException {
+		if (delegate == null) {
+			throw delegateConstructionException;
+		}
+	}
+
 }
