@@ -2,6 +2,7 @@ package org.openforis.commons.lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -25,6 +26,12 @@ public class Strings {
 		return null;
 	}
 	
+	public static <C extends Collection<String>> String joinNotBlank(C values, String separator) {
+		List<String> notBlankValues = filterNotBlank(values);
+		String result = StringUtils.join(notBlankValues, separator);
+		return result;
+	}
+	
 	public static String textToHtml(String text) {
 		String result;
 		result = StringUtils.replace(text, "\n", "<br>");
@@ -43,6 +50,10 @@ public class Strings {
 		return result.toArray(new String[result.size()]);
 	}
 
+	private static List<String> filterNotBlank(Collection<String> list) {
+		return filterNotBlank(new ArrayList<String>(list));
+	}
+	
 	private static List<String> filterNotBlank(List<String> list) {
 		List<String> result = new ArrayList<String>(list);
 		CollectionUtils.filter(result, new Predicate<String>() {
