@@ -5,6 +5,7 @@ package org.openforis.commons.collection;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,4 +73,17 @@ public class CollectionUtils {
 			throw new IndexOutOfBoundsException("Index out of bounds: " + toIndex + " (list size = " + list.size() + ")");
 		}
 	}
+	
+	public static <T, C extends Collection<T>> void filter(C collection, Predicate<T> predicate) {
+	    if (collection != null && predicate != null) {
+	    	Iterator<T> it = collection.iterator();
+	        while(it.hasNext()) {
+	            T item = it.next();
+				if (predicate.evaluate(item) == false) {
+	                it.remove();
+	            }
+	        }
+	    }
+	}
+
 }
