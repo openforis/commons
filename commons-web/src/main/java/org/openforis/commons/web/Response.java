@@ -22,15 +22,17 @@ public class Response {
 	}
 
 	private Status status;
+	private Object object;
+	private Map<String, Object> objects;
+	private String errorMessage;
 	private List<ObjectError> errors;
-	private Map<String, Object> fields;
 	
 	public Response() {
 		this(null);
 	}
 
 	public Response(List<ObjectError> errors) {
-		fields = new HashMap<String, Object>();
+		objects = new HashMap<String, Object>();
 		if (errors != null && !errors.isEmpty()) {
 			setStatus(Status.ERROR);
 			this.errors = errors;
@@ -52,12 +54,24 @@ public class Response {
 		return status == Status.OK;
 	}
 	
-	void setOkStatus() {
+	public void setOkStatus() {
 		setStatus(Status.OK);
 	}
 	
-	void setErrorStatus() {
+	public boolean isStatusError() {
+		return status == Status.ERROR;
+	}
+	
+	public void setErrorStatus() {
 		setStatus(Status.ERROR);
+	}
+	
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+	
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 	
 	public List<ObjectError> getErrors() {
@@ -72,12 +86,20 @@ public class Response {
 		return status == Status.ERROR;
 	}
 
-	public Map<String, Object> getFields() {
-		return fields;
+	public Object getObject() {
+		return object;
 	}
 	
-	public void addField(String name, Object object){
-		this.fields.put(name, object);
+	public void setObject(Object object) {
+		this.object = object;
+	}
+	
+	public Map<String, Object> getObjects() {
+		return objects;
+	}
+	
+	public void addObject(String key, Object object){
+		this.objects.put(key, object);
 	}
 	
 }
