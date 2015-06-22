@@ -89,7 +89,7 @@ public class SimpleJobManager implements JobManager {
 	synchronized public <J extends Job> void start(final J job, final String lockId, boolean async) {
 		jobInfoById.put(job.getId().toString(), new JobInfo(job));
 		
-		job.init();
+		job.initialize();
 		
 		if ( job.isPending() ) {
 			if ( lockId != null ) {

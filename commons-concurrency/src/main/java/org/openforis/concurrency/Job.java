@@ -35,7 +35,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @throws Throwable 
 	 */
 	@Override
-	protected void initInternal() throws Throwable {
+	protected void initalizeInternalVariables() throws Throwable {
 		buildTasks();
 	}
 	
@@ -61,15 +61,9 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	}
 	
 	@Override
-	public synchronized void run() {
-		log().debug("Starting job");
-		super.run();
-		log().debug(String.format("Finished in %.1f sec", getDuration() / 1000f));
-	}
-	
-	@Override
 	public void abort() {
 		super.abort();
+		//abort current task
 		Task currentTask = getCurrentTask();
 		if (currentTask != null) {
 			currentTask.abort();
@@ -192,7 +186,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @param task
 	 */
 	protected void prepareTask(Task task) {
-		task.init();
+		task.initialize();
 	}
 	
 	public List<Task> getTasks() {

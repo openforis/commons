@@ -22,8 +22,8 @@ public abstract class Task extends Worker {
 	}
 	
 	@Override
-	protected void initInternal() throws Throwable {
-		super.initInternal();
+	protected void beforeExecuteInternal() throws Throwable {
+		super.beforeExecuteInternal();
 		this.totalItems = countTotalItems();
 	}
 	

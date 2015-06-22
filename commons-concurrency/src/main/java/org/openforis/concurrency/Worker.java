@@ -41,23 +41,44 @@ public abstract class Worker {
 		this.status = Status.PENDING;
 	}
 	
-	protected final void init() {
-		log().debug("Initializing");
+	protected final void initialize() {
+		log().debug("Initializing...");
 		try {
-			initInternal();
+			initalizeInternalVariables();
 		} catch ( Throwable t ) {
-			log().error("Error initializing worker: " + t.getMessage(), t);
-			errorMessage = t.getMessage();
-			lastException = t;
-			changeStatus(Status.FAILED);
+			handleException(t);
+		}
+	}
+
+	protected void initalizeInternalVariables() throws Throwable {}
+	
+	protected final void beforeExecute() {
+		log().debug("Before executing...");
+		try {
+			beforeExecuteInternal();
+		} catch ( Throwable t ) {
+			handleException(t);
 		}
 	}
 	
-	protected void initInternal() throws Throwable {
-	}
+	protected void beforeExecuteInternal() throws Throwable {}
 
 	protected abstract void execute() throws Throwable;
 	
+	protected final void afterExecute() {
+		log().debug("After executing...");
+		try {
+			afterExecuteInternal();
+			if ( isRunning() ) {
+				changeStatus(Status.COMPLETED);
+			}
+		} catch ( Throwable t ) {
+			handleException(t);
+		}
+	}
+	
+	protected void afterExecuteInternal() {}
+
 	public void addStatusChangeListener(WorkerStatusChangeListener listener) {
 		this.statusChangeListeners.add(listener);
 	}
@@ -71,24 +92,24 @@ public abstract class Worker {
 	}
 
 	public synchronized void run() {
-		if (!isPending()) {
+		if (! isPending()) {
 			throw new IllegalStateException("Already run");
 		}
 		try {
 			changeStatus(Status.RUNNING);
 			this.startTime = System.currentTimeMillis();
+			
+			beforeExecute();
+			
 			execute();
-			if ( isRunning() ) {
-				changeStatus(Status.COMPLETED);
-			}
+			
+			afterExecute();
 		} catch (Throwable t) {
-			this.lastException = t;
-			this.errorMessage = t.getMessage();
-			changeStatus(Status.FAILED);
-			log.warn("Task failed", t);
+			handleException(t);
 		} finally {
 			this.endTime = System.currentTimeMillis();
 			notifyAll();
+			log().debug(String.format("Finished in %.1f sec", getDuration() / 1000f));
 			onEnd();
 		}
 	}
@@ -146,6 +167,13 @@ public abstract class Worker {
 		}
 	}
 
+	private void handleException(Throwable t) {
+		log().error(String.format("Error running worker (status: %s): %s", status.name(), t.getMessage()), t);
+		lastException = t;
+		errorMessage = t.getMessage();
+		changeStatus(Status.FAILED);
+	}
+	
 	public final boolean isPending() {
 		return status == Status.PENDING;
 	}
