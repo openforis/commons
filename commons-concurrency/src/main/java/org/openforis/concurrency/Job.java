@@ -3,11 +3,8 @@ package org.openforis.concurrency;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
-import org.openforis.concurrency.Worker.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -16,18 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author M. Togna
  * @author S. Ricci
  */
-public abstract class Job extends Worker implements Iterable<Task> {
+public abstract class Job extends Worker {
 	
 	@Autowired
 	private transient JobManager jobManager;
 
+	private List<Worker> tasks;
 	private int currentTaskIndex;
-
-	private List<Task> tasks;
 	
 	protected Job() {
+		this.tasks = new ArrayList<Worker>();
 		this.currentTaskIndex = -1;
-		this.tasks = new ArrayList<Task>();
 	}
 
 	/**
@@ -35,7 +31,8 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @throws Throwable 
 	 */
 	@Override
-	protected void initalizeInternalVariables() throws Throwable {
+	protected void initializeInternalVariables() throws Throwable {
+		super.initializeInternalVariables();
 		buildTasks();
 	}
 	
@@ -47,7 +44,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		case PENDING:
 			return 0;
 		default:
-			Task currentTask = getCurrentTask();
+			Worker currentTask = getCurrentTask();
 			if ( currentTask == null ) {
 				return 0;
 			} else {
@@ -64,7 +61,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	public void abort() {
 		super.abort();
 		//abort current task
-		Task currentTask = getCurrentTask();
+		Worker currentTask = getCurrentTask();
 		if (currentTask != null) {
 			currentTask.abort();
 		}
@@ -75,24 +72,29 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * 
 	 * @throws Exception
 	 */
+	@Override
 	protected void execute() throws Throwable {
-		this.currentTaskIndex = -1;
 		while ( hasTaskToRun() ) {
-			Task task = nextTask();
+			Worker task = nextTask();
 			
-			prepareTask(task);
+			initializeTask(task);
 			
-			if ( task.isPending() ) {
+			switch (task.getStatus()) {
+			case PENDING:
 				runTask(task);
-			} else {
-				setErrorMessage(task.getErrorMessage());
-				setLastException(task.getLastException());
-				changeStatus(Status.FAILED);
+				break;
+			case FAILED:
+				onTaskFailed(task);
+				break;
+			case ABORTED:
+				abort();
+				break;
+			default:
 			}
 		}
 	}
 
-	protected void runTask(Task task) throws Throwable {
+	protected void runTask(Worker task) throws Throwable {
 		try {
 			task.run();
 
@@ -101,11 +103,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 				onTaskCompleted(task);
 				break;
 			case FAILED:
-				if ( task.getLastException() != null ) {
-					throw task.getLastException();
-				} else {
-					this.changeStatus(Status.FAILED);
-				}
+				onTaskFailed(task);
 				break;
 			case ABORTED:
 				abort();
@@ -123,8 +121,8 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 */
 	protected abstract void buildTasks() throws Throwable;
 
-	protected <T extends Task> T createTask(Class<T> type) {
-		T task = jobManager.createTask(type);
+	protected <T extends Worker> T createTask(Class<T> type) {
+		T task = jobManager.createWorker(type);
 		return task;
 	}
 	
@@ -132,7 +130,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return isRunning() && currentTaskIndex + 1 < tasks.size();
 	}
 
-	protected Task nextTask() {
+	protected Worker nextTask() {
 		this.currentTaskIndex ++;
 		return tasks.get(currentTaskIndex);
 	}
@@ -142,7 +140,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * @param type
 	 * @return
 	 */
-	protected <T extends Task> T addTask(Class<T> type) {
+	protected <T extends Worker> T addTask(Class<T> type) {
 		T task = createTask(type);
 		addTask(task);
 		return task;
@@ -153,15 +151,15 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * 
 	 * @param task
 	 */
-	protected <T extends Task> void addTask(T task) {
+	protected <T extends Worker> void addTask(T task) {
 		if ( !isPending() ) {
 			throw new IllegalStateException("Cannot add tasks to a job once started");
 		}
 		tasks.add(task);
 	}
 
-	protected <C extends Collection<? extends Task>> void addTasks(C tasks) {
-		for (Task task : tasks) {
+	protected <C extends Collection<? extends Worker>> void addTasks(C tasks) {
+		for (Worker task : tasks) {
 			addTask(task);
 		}
 	}
@@ -170,7 +168,7 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * Called when the task ends its execution. The status can be {@link Status#COMPLETED}, {@link Status#FAILED}, {@link Status#ABORTED}
 	 * @param task
 	 */
-	protected void onTaskEnd(Task task) {
+	protected void onTaskEnd(Worker task) {
 		
 	}
 
@@ -178,18 +176,27 @@ public abstract class Job extends Worker implements Iterable<Task> {
 	 * Called when the task ends its execution with the status {@link Status#COMPLETED}
 	 * @param task
 	 */
-	protected void onTaskCompleted(Task task) {
+	protected void onTaskCompleted(Worker task) {
+	}
+	
+	protected void onTaskFailed(Worker task) throws Throwable {
+		if (task.getLastException() != null) {
+			throw task.getLastException();
+		} else {
+			setErrorMessage(task.getErrorMessage());
+			changeStatus(Status.FAILED);
+		}
 	}
 
 	/**
 	 * Called before task execution.
 	 * @param task
 	 */
-	protected void prepareTask(Task task) {
+	protected void initializeTask(Worker task) {
 		task.initialize();
 	}
 	
-	public List<Task> getTasks() {
+	public List<Worker> getTasks() {
 		return Collections.unmodifiableList(tasks);
 	}
 
@@ -197,24 +204,10 @@ public abstract class Job extends Worker implements Iterable<Task> {
 		return this.currentTaskIndex;
 	}
 
-	public Task getCurrentTask() {
+	public Worker getCurrentTask() {
 		return currentTaskIndex >= 0 ? tasks.get(currentTaskIndex) : null;
 	}
 	
-	@Override
-	public Iterator<Task> iterator() {
-		return getTasks().iterator();
-	}	
-
-	public Task getTask(UUID taskId) {
-		for (Task task : tasks) {
-			if ( task.getId().equals(taskId) ) {
-				return task;
-			}
-		}
-		return null;
-	}
-
 	public JobManager getJobManager() {
 		return jobManager;
 	}

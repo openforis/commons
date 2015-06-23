@@ -44,18 +44,30 @@ public abstract class Worker {
 	protected final void initialize() {
 		log().debug("Initializing...");
 		try {
-			initalizeInternalVariables();
+			validateInput();
+			if (isPending()) {
+				createInternalVariables();
+				if (isPending()) {
+					initializeInternalVariables();
+				}
+			}
 		} catch ( Throwable t ) {
 			handleException(t);
 		}
 	}
 
-	protected void initalizeInternalVariables() throws Throwable {}
+	protected void validateInput() throws Throwable {}
+
+	protected void createInternalVariables() throws Throwable {}
+	
+	protected void initializeInternalVariables() throws Throwable {}
 	
 	protected final void beforeExecute() {
 		log().debug("Before executing...");
 		try {
+			this.startTime = System.currentTimeMillis();
 			beforeExecuteInternal();
+			changeStatus(Status.RUNNING);
 		} catch ( Throwable t ) {
 			handleException(t);
 		}
@@ -96,11 +108,8 @@ public abstract class Worker {
 			throw new IllegalStateException("Already run");
 		}
 		try {
-			changeStatus(Status.RUNNING);
-			this.startTime = System.currentTimeMillis();
-			
 			beforeExecute();
-			
+
 			execute();
 			
 			afterExecute();

@@ -50,23 +50,25 @@ public class SimpleJobManager implements JobManager {
 	
 	@Override
 	public <J extends Job> J createJob(Class<J> type) {
-		try {
-			J job = type.newInstance();
-			job.setJobManager(this);
-			return job;
-		} catch (Exception e) {
-			throw new RuntimeException("Error instanciating job of type " + type.getName());
-		}
+		return createWorker(type);
 	}
 
 	@Override
-	public <T extends Task> T createTask(Class<T> type) {
+	public <T extends Worker> T createWorker(Class<T> type) {
 		try {
-			T task = type.newInstance();
+			T task = createInstance(type);
+			if (task instanceof Job) {
+				((Job) task).setJobManager(this);
+			}
 			return task;
 		} catch (Exception e) {
-			throw new RuntimeException("Error instanciating job of type " + type.getName());
+			throw new RuntimeException("Error instanciating worker of type " + type.getName(), e);
 		}
+	}
+
+	protected <T extends Worker> T createInstance(Class<T> type)
+			throws InstantiationException, IllegalAccessException {
+		return type.newInstance();
 	}
 	
 	/**
