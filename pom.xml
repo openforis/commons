@@ -7,8 +7,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>commons-collections</module>
 		<module>commons-lang</module>
+		<module>commons-collections</module>
 		<module>commons-io</module>
 		<module>commons-jdbc</module>
 		<module>commons-concurrency</module>

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openforis.commons.lang.Objects;
+
 /**
  * @author M. Togna
  * @author S. Ricci
@@ -84,6 +86,20 @@ public class CollectionUtils {
 	            }
 	        }
 	    }
+	}
+	
+	public static <T> T findItem(Collection<T> items, Object key) {
+		return findItem(items, key, "id");
+	}
+	
+	public static <T> T findItem(Collection<T> items, Object key, String keyPropertyName) {
+		for (T item : items) {
+			Object keyValue = Objects.getPropertyValue(item, keyPropertyName);
+			if (key.equals(keyValue)) {
+				return item;
+			}
+		}
+		return null;
 	}
 
 }

@@ -11,11 +11,6 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.openforis.commons</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>

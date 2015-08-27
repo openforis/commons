@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openforis.commons.collection.CollectionUtils;
-import org.openforis.commons.collection.Predicate;
 
 /**
  * 
@@ -55,13 +53,12 @@ public class Strings {
 	}
 	
 	private static List<String> filterNotBlank(List<String> list) {
-		List<String> result = new ArrayList<String>(list);
-		CollectionUtils.filter(result, new Predicate<String>() {
-			@Override
-			public boolean evaluate(String text) {
-				return StringUtils.isNotBlank((String) text);
+		List<String> result = new ArrayList<String>(list.size());
+		for (String value : list) {
+			if (StringUtils.isNotBlank(value)) {
+				result.add(value);
 			}
-		});
+		}
 		return result;
 	}
 
