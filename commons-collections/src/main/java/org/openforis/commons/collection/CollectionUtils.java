@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openforis.commons.lang.DeepComparable;
 import org.openforis.commons.lang.Objects;
 
 /**
@@ -102,4 +103,23 @@ public class CollectionUtils {
 		return null;
 	}
 
+	public static <T extends DeepComparable> boolean deepEquals(Collection<T> coll1, Collection<T> coll2) {
+		return deepEquals(coll1, coll2, false);
+	}
+	
+	public static <T extends DeepComparable> boolean deepEquals(Collection<T> coll1, Collection<T> coll2, boolean ignoreId) {
+		if (coll1 == coll2)
+            return true;
+
+		Iterator<T> e1 = coll1.iterator();
+        Iterator<T> e2 = coll2.iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+        	DeepComparable o1 = e1.next();
+        	DeepComparable o2 = e2.next();
+            if (! Objects.deepEquals(o1, o2, ignoreId))
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
+	}
+	
 }

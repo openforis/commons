@@ -19,9 +19,6 @@ public class SpringJobManager extends SimpleJobManager {
 	@Autowired
 	private BeanFactory beanFactory;
 
-	@Autowired
-	private Executor jobExecutor;
-	
 	@Override
 	protected <T extends Worker> T createInstance(Class<T> type)
 			throws InstantiationException, IllegalAccessException {
