@@ -10,7 +10,7 @@ import org.springframework.validation.ObjectError;
  * @author S. Ricci
  *
  */
-public abstract class AbstractFormUpdateResponse<F extends PersistedObjectForm<?>> extends Response {
+public abstract class AbstractFormUpdateResponse<F extends SimpleObjectForm<?>> extends Response {
 
 	private F form;
 	
