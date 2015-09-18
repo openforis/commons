@@ -3,6 +3,7 @@
  */
 package org.openforis.commons.collection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -101,6 +102,15 @@ public class CollectionUtils {
 			}
 		}
 		return null;
+	}
+	
+	public static <I, T> List<I> project(Collection<T> items, String propertyName) {
+		List<I> result = new ArrayList<I>(items.size());
+		for (T item : items) {
+			I keyValue = Objects.getPropertyValue(item, propertyName);
+			result.add(keyValue);
+		}
+		return result;
 	}
 
 	public static <T extends DeepComparable> boolean deepEquals(Collection<T> coll1, Collection<T> coll2) {
