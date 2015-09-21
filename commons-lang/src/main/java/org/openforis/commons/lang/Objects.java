@@ -1,6 +1,7 @@
 package org.openforis.commons.lang;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,4 +53,16 @@ public class Objects {
 		}
 	}
 	
+	public static <T> T newInstance(Class<T> type, Object... parameters) {
+		List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
+		for (Object param : parameters) {
+			parameterTypes.add(param.getClass());
+		}
+		try {
+			Constructor<T> constructor = type.getDeclaredConstructor(parameterTypes.toArray(new Class<?>[parameterTypes.size()]));
+			return constructor.newInstance(parameters);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }
