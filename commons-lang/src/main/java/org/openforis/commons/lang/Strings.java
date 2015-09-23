@@ -48,6 +48,12 @@ public class Strings {
 		return result.toArray(new String[result.size()]);
 	}
 
+	public static void append(StringBuilder sb, String value, int count) {
+		for (int i = 0; i < count; i++) {
+			sb.append(value);
+		}
+	}
+	
 	private static List<String> filterNotBlank(Collection<String> list) {
 		return filterNotBlank(new ArrayList<String>(list));
 	}
