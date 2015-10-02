@@ -1,5 +1,6 @@
 package org.openforis.concurrency;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,8 +35,18 @@ public class SimpleJobManager implements JobManager {
 		initJobInfoUpdateTimer();
 	}
 
-	public void destroy() {
+	public synchronized void destroy() {
 		jobInfoUpdateTimer.cancel();
+		abortRunningJobs();
+	}
+
+	private void abortRunningJobs() {
+		Collection<Job> jobs = jobByLockId.values();
+		for (Job job : jobs) {
+			if (job.isRunning()) {
+				job.abort();
+			}
+		}
 	}
 	
 	private void initJobInfoUpdateTimer() {
