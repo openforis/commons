@@ -16,6 +16,9 @@ import org.apache.commons.lang3.ObjectUtils;
 public class Objects {
 
 	public static <O extends Cloneable> List<O> clone(List<O> list) {
+		if (list == null) {
+			return null;
+		}
 		List<O> clone = new ArrayList<O>(list.size());
 		for (Object item : list) {
 			@SuppressWarnings("unchecked")

@@ -132,4 +132,26 @@ public class CollectionUtils {
         return !(e1.hasNext() || e2.hasNext());
 	}
 	
+	/**
+	 * Creates a clone of the specified list (NOT a DEEP CLONE of the objects inside the list)
+	 * 
+	 * @param list
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static <T extends Object> List<T> clone(List<T> list) {
+		if (list == null) {
+			return null;
+		}
+		if (list instanceof ArrayList) {
+			return (List<T>) ((ArrayList) list).clone();
+		} else {
+			List<T> result = new ArrayList<T>(list.size());
+			for (T item : list) {
+				result.add(item);
+			}
+			return result;
+		}
+	}
+	
 }
