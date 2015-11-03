@@ -9,8 +9,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.openforis.commons.lang.DeepComparable;
 import org.openforis.commons.lang.Objects;
 
@@ -151,6 +153,12 @@ public class CollectionUtils {
 				result.add(item);
 			}
 			return result;
+		}
+	}
+	
+	public static <K extends Object, V extends Object> void cloneValuesInto(Map<K, V> fromMap, Map<K, V> intoMap) {
+		for (Entry<K, V> entry : fromMap.entrySet()) {
+			intoMap.put(ObjectUtils.cloneIfPossible(entry.getKey()), ObjectUtils.cloneIfPossible(entry.getValue()));
 		}
 	}
 	
