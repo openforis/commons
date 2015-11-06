@@ -1,12 +1,11 @@
 package org.openforis.commons.lang;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * 
@@ -30,10 +29,8 @@ public class Objects {
 	
 	@SuppressWarnings("unchecked")
 	public static <V> V getPropertyValue(Object obj, String propertyName) {
-		Method readMethod;
 		try {
-			readMethod = new PropertyDescriptor(propertyName, obj.getClass()).getReadMethod();
-			Object value = readMethod.invoke(obj);
+			Object value = FieldUtils.readField(obj, propertyName, true);
 			return (V) value;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
