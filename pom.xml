@@ -18,12 +18,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>openforis-releases-repository</id>
+			<id>openforis-releases</id>
 			<name>Open Foris Repository</name>
 			<url>http://www.openforis.org/nexus/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>openforis-snapshots-repository</id>
+			<id>openforis-snapshots</id>
 			<name>Open Foris Snapshots Repository</name>
 			<url>http://www.openforis.org/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
