@@ -2,11 +2,10 @@ package org.openforis.concurrency;
 
 public interface ProgressListener {
 
-	void progressMade();
+	void progressMade(long processedItems, long totalItems);
 	
 	static ProgressListener NULL_PROGRESS_LISTENER = new ProgressListener() {
-		@Override
-		public void progressMade() {
-		}
+		public void progressMade(long processedItems, long totalItems) {}
+		
 	};
 }
