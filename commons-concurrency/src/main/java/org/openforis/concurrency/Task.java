@@ -35,6 +35,10 @@ public abstract class Task extends Worker {
 		this.itemsProcessed = itemsProcessed;
 	}
 
+	public void setTotalItems(long totalItems) {
+		this.totalItems = totalItems;
+	}
+	
 	protected long incrementItemsProcessed() {
 		return ++this.itemsProcessed;
 	}
