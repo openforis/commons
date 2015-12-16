@@ -8,10 +8,10 @@ package org.openforis.concurrency;
  */
 public interface ProgressListener {
 
-	void progressMade();
+	void progressMade(Progress progress);
 	
 	static ProgressListener NULL_PROGRESS_LISTENER = new ProgressListener() {
-		public void progressMade() {}
+		public void progressMade(Progress progress) {}
 	};
 	
 }

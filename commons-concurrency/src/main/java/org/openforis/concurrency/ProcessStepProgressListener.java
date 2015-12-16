@@ -5,7 +5,7 @@ package org.openforis.concurrency;
  * @author S. Ricci
  *
  */
-public class ProcessStepProgressListener implements DetailedProgressListener {
+public class ProcessStepProgressListener implements ProgressListener {
 	
 	private ProcessProgressListener processProgressListener;
 	private ProgressListener outerProgressListener;
@@ -21,9 +21,6 @@ public class ProcessStepProgressListener implements DetailedProgressListener {
 	
 	public void progressMade(Progress stepProgress) {
 		processProgressListener.stepProgressMade(stepProgress);
-		outerProgressListener.progressMade();
-		if (outerProgressListener instanceof DetailedProgressListener) {
-			((DetailedProgressListener) outerProgressListener).progressMade(processProgressListener.getProgress());
-		}
+		outerProgressListener.progressMade(processProgressListener.getProgress());
 	}
 }
