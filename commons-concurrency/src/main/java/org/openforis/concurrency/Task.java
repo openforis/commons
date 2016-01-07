@@ -76,7 +76,7 @@ public abstract class Task extends Worker {
 		return this.itemsSkipped;
 	}
 
-	public final long getTotalItems() {
+	public long getTotalItems() {
 		return this.totalItems;
 	}
 

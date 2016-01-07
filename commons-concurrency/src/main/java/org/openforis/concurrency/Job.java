@@ -22,6 +22,7 @@ public abstract class Job extends Worker {
 	private int currentTaskIndex;
 	
 	protected Job() {
+		super();
 		this.tasks = new ArrayList<Worker>();
 		this.currentTaskIndex = -1;
 	}

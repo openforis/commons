@@ -21,6 +21,8 @@ public class ProcessStepProgressListener implements ProgressListener {
 	
 	public void progressMade(Progress stepProgress) {
 		processProgressListener.stepProgressMade(stepProgress);
-		outerProgressListener.progressMade(processProgressListener.getProgress());
+		if (outerProgressListener != null) {
+			outerProgressListener.progressMade(processProgressListener.getProgress());
+		}
 	}
 }

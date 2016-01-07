@@ -16,33 +16,23 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class Worker {
 
-	private UUID id;
-	private long startTime;
-	private long endTime;
-	private Status status;
+	private UUID id = UUID.randomUUID();
+	private long startTime = -1;
+	private long endTime = -1;
+	private Status status = Status.PENDING;
 	private String errorMessage;
-	
+	private String [] errorMessageArgs;
 	private transient Throwable lastException;
-	private transient Log log;
-	private transient List<WorkerStatusChangeListener> statusChangeListeners;
+	private transient Log log = LogFactory.getLog(getClass());
+	private transient List<WorkerStatusChangeListener> statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
 
 	public enum Status {
 		PENDING, RUNNING, COMPLETED, FAILED, ABORTED;
 	}
 
-	public Worker() {
-		this.startTime = -1;
-		this.endTime = -1;
-		this.lastException = null;
-		this.errorMessage = null;
-		this.log = LogFactory.getLog(getClass());
-		this.id = UUID.randomUUID();
-		this.statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
-		this.status = Status.PENDING;
-	}
-	
-	protected final void initialize() {
+	public void initialize() {
 		log().debug("Initializing...");
+		
 		try {
 			validateInput();
 			if (isPending()) {
@@ -62,7 +52,7 @@ public abstract class Worker {
 	
 	protected void initializeInternalVariables() throws Throwable {}
 	
-	protected final void beforeExecute() {
+	protected void beforeExecute() {
 		log().debug("Before executing...");
 		try {
 			this.startTime = System.currentTimeMillis();
@@ -77,7 +67,7 @@ public abstract class Worker {
 
 	protected abstract void execute() throws Throwable;
 	
-	protected final void afterExecute() {
+	protected void afterExecute() {
 		log().debug("After executing...");
 		try {
 			afterExecuteInternal();
@@ -103,7 +93,7 @@ public abstract class Worker {
 		return getClass().getSimpleName();
 	}
 
-	public synchronized void run() {
+	protected synchronized void run() {
 		if (! isPending()) {
 			throw new IllegalStateException("Already run");
 		}
@@ -165,7 +155,7 @@ public abstract class Worker {
 		}
 	}
 
-	public final long getDuration() {
+	public long getDuration() {
 		switch (status) {
 		case PENDING:
 			return -1;
@@ -183,23 +173,23 @@ public abstract class Worker {
 		changeStatus(Status.FAILED);
 	}
 	
-	public final boolean isPending() {
-		return status == Status.PENDING;
+	public boolean isPending() {
+		return status == null || status == Status.PENDING;
 	}
 
-	public final boolean isRunning() {
+	public boolean isRunning() {
 		return status == Status.RUNNING;
 	}
 
-	public final boolean isFailed() {
+	public boolean isFailed() {
 		return status == Status.FAILED;
 	}
 
-	public final boolean isAborted() {
+	public boolean isAborted() {
 		return status == Status.ABORTED;
 	}
 
-	public final boolean isCompleted() {
+	public boolean isCompleted() {
 		return status == Status.COMPLETED;
 	}
 
@@ -210,31 +200,34 @@ public abstract class Worker {
 	 * 
 	 * @return
 	 */
-	public final boolean isEnded() {
+	public boolean isEnded() {
 		return status != Status.PENDING && status != Status.RUNNING;
 	}
 
-	public final Status getStatus() {
+	public Status getStatus() {
 		return this.status;
 	}
 
-	public final long getStartTime() {
+	public long getStartTime() {
 		return this.startTime;
 	}
 
-	public final long getEndTime() {
+	public long getEndTime() {
 		return this.endTime;
 	}
 
-	public final Throwable getLastException() {
+	public Throwable getLastException() {
 		return this.lastException;
 	}
 
 	public UUID getId() {
-		return id;
+		return this.id;
 	}
 
-	protected final Log log() {
+	protected Log log() {
+		if (this.log == null) {
+			this.log = LogFactory.getLog(getClass());
+		}
 		return this.log;
 	}
 	
@@ -244,6 +237,14 @@ public abstract class Worker {
 	
 	protected void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+	
+	public String[] getErrorMessageArgs() {
+		return errorMessageArgs;
+	}
+	
+	protected void setErrorMessageArgs(String[] errorMessageArgs) {
+		this.errorMessageArgs = errorMessageArgs;
 	}
 
 	protected void setLastException(Throwable lastException) {

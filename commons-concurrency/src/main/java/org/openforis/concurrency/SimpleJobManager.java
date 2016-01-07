@@ -113,6 +113,8 @@ public class SimpleJobManager implements JobManager {
 				public void run() {
 					try {
 						job.run();
+					} catch (Exception e) {
+						//do nothing, exceptions thrown to rollback transaction
 					} finally {
 						if ( lockId != null ) {
 							release(lockId);
