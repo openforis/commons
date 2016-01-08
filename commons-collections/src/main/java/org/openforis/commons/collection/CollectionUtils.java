@@ -162,4 +162,18 @@ public class CollectionUtils {
 		}
 	}
 	
+	public static <T extends Object> List<T> copyAndFillWithNulls(List<T> list, int newSize) {
+		return copyAndFillWith(list, newSize, null);
+	}
+	
+	public static <T extends Object> List<T> copyAndFillWith(List<T> list, int newSize, T fillValue) {
+		if (list.size() > newSize) {
+			throw new IllegalArgumentException(String.format("Original collection size (%d) must not exceed the new collection size: %d", list.size(), newSize));
+		}
+		ArrayList<T> result = new ArrayList<T>(newSize);
+		result.addAll(list);
+		result.addAll(Collections.nCopies(newSize - list.size(), fillValue));
+		return result;
+	}
+	
 }
