@@ -12,13 +12,13 @@ package org.openforis.concurrency;
 public abstract class Task extends Worker {
 
 	private long totalItems;
-	private long itemsProcessed;
-	private long itemsSkipped;
+	private long processedItems;
+	private long skippedItems;
 
 	public Task() {
 		this.totalItems = -1;
-		this.itemsProcessed = 0;
-		this.itemsSkipped = 0;
+		this.processedItems = 0;
+		this.skippedItems = 0;
 	}
 	
 	@Override
@@ -31,24 +31,24 @@ public abstract class Task extends Worker {
 		return -1;
 	};
 
-	protected void setItemsProcessed(long itemsProcessed) {
-		this.itemsProcessed = itemsProcessed;
+	protected void setProcessedItems(long processedItems) {
+		this.processedItems = processedItems;
 	}
 
 	public void setTotalItems(long totalItems) {
 		this.totalItems = totalItems;
 	}
 	
-	protected long incrementItemsProcessed() {
-		return ++this.itemsProcessed;
+	protected long incrementProcessedItems() {
+		return ++this.processedItems;
 	}
 
-	protected long incrementItemsSkipped() {
-		return ++this.itemsSkipped;
+	protected long incrementSkippedItems() {
+		return ++this.skippedItems;
 	}
 
-	public long getItemsRemaining() {
-		return totalItems - (itemsProcessed + itemsSkipped);
+	public long getRemainingItems() {
+		return totalItems - (processedItems + skippedItems);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public abstract class Task extends Worker {
 			return 0;
 		default:
 			if ( totalItems > 0 ) {
-				int result = Double.valueOf(Math.ceil( (double) ( ( itemsProcessed + itemsSkipped ) * 100d / totalItems ) ) ).intValue();
+				int result = Double.valueOf(Math.ceil( (double) ( ( processedItems + skippedItems ) * 100d / totalItems ) ) ).intValue();
 				return result;
 			} else {
 				return 0;
@@ -68,12 +68,12 @@ public abstract class Task extends Worker {
 		}
 	}
 	
-	public long getItemsProcessed() {
-		return this.itemsProcessed;
+	public long getProcessedItems() {
+		return this.processedItems;
 	}
 
-	public long getItemsSkipped() {
-		return this.itemsSkipped;
+	public long getSkippedItems() {
+		return this.skippedItems;
 	}
 
 	public long getTotalItems() {
