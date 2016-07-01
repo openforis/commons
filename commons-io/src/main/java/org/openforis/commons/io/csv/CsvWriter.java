@@ -54,8 +54,8 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 		this(out, charsetName, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
 	}
 	
-	public CsvWriter(OutputStream out, String charsetName, char separator, char quotechar) {
-		this(new BufferedWriter(new OutputStreamWriter(out)), separator, quotechar);
+	public CsvWriter(OutputStream out, String charsetName, char separator, char quotechar) throws UnsupportedEncodingException {
+		this(new BufferedWriter(new OutputStreamWriter(out, charsetName)), separator, quotechar);
 	}
 
 	public void writeAll(FlatDataStream in) throws IOException {
