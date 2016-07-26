@@ -63,9 +63,7 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 		if ( r == null ) {
 			return;
 		}
-    	List<String> fieldNames = in.getFieldNames();
-    	String[] headers = fieldNames.toArray(new String[fieldNames.size()]);
-    	writeHeaders(headers);
+    	writeHeaders(in.getFieldNames());
 		
 		while ( r != null ) {
 			writeNext(r);
@@ -87,11 +85,19 @@ public class CsvWriter extends CsvProcessor implements Closeable {
 		writeNext(line);
 	}
 
+	public void writeNext(List<String> line) {
+		writeNext(line.toArray(new String[line.size()]));
+	}
+
 	public void writeNext(String[] line) {
 		csvWriter.writeNext(line);
 		linesWritten++;
 	}
 
+	public void writeHeaders(List<String> headers) {
+		writeHeaders(headers.toArray(new String[headers.size()]));
+	}
+	
 	public void writeHeaders(String[] headers) {
 		if ( headersWritten ) {
 			throw new IllegalStateException("Headers already written");
