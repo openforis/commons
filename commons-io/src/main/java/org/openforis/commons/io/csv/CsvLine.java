@@ -106,6 +106,9 @@ public class CsvLine implements FlatRecord {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getValue(int idx, Class<T> type) {
+		if (line.length <= idx) {
+			return null;
+		}
 		String value = line[idx];
 		if ( type.isAssignableFrom(Integer.class) ) {
 			return (T) toInteger(value);
@@ -118,7 +121,7 @@ public class CsvLine implements FlatRecord {
 		} else if ( type.isAssignableFrom(Date.class) ) {
 			return (T) toDate(value);
 		} else {
-			throw new IllegalArgumentException("Unknown type "+type);
+			throw new IllegalArgumentException("Unsupported type "+type);
 		}
 	}
 
