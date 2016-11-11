@@ -54,6 +54,18 @@ public class Strings {
 		}
 	}
 	
+	public static List<String> prependToList(List<String> values, String prefix) {
+		if (StringUtils.isBlank(prefix)) {
+			return values;
+		} else {
+			List<String> result = new ArrayList<String>(values.size());
+			for (String val : values) {
+				result.add(prefix + val);
+			}
+			return result;
+		}
+	}
+	
 	private static List<String> filterNotBlank(Collection<String> list) {
 		return filterNotBlank(new ArrayList<String>(list));
 	}
