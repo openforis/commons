@@ -3,7 +3,7 @@
 
 	<groupId>org.openforis.commons</groupId>
 	<artifactId>commons</artifactId>
-	<version>0.1.24-SNAPSHOT</version>
+	<version>0.1.26-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -75,6 +75,22 @@
 				<version>2.5.1</version>
 			</plugin>
 			
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+      						<additionalparam>-Xdoclint:none</additionalparam>
+    					</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	
