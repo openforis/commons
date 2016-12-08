@@ -65,4 +65,8 @@ public abstract class CsvReaderDelegate extends CsvProcessor {
 		return readNextLine();
 	}
 
+	public void setHeadersRead(boolean headersRead) {
+		this.headersRead = headersRead;
+	}
+
 }

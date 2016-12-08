@@ -97,6 +97,10 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	public boolean isHeadersRead() {
 		return delegate.isHeadersRead();
 	}
+	
+	public void setHeadersRead(boolean headersRead ) {
+		delegate.setHeadersRead( headersRead );
+	}
 
 	public long getLinesRead() {
 		return delegate.getLinesRead();
