@@ -2,19 +2,25 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.openforis.commons</groupId>
-	<artifactId>commons</artifactId>
-	<version>0.1.28-SNAPSHOT</version>
+	<artifactId>of-commons</artifactId>
+	<version>0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>commons-lang</module>
-		<module>commons-collections</module>
-		<module>commons-io</module>
-		<module>commons-jdbc</module>
-		<module>commons-concurrency</module>
-		<module>commons-versioning</module>
-		<module>commons-web</module>
+		<module>of-commons-lang</module>
+		<module>of-commons-collections</module>
+		<module>of-commons-io</module>
+		<module>of-commons-jdbc</module>
+		<module>of-commons-concurrency</module>
+		<module>of-commons-concurrency-spring</module>
+		<module>of-commons-versioning</module>
+		<module>of-commons-web</module>
+		<module>of-commons-web-spring</module>
 	</modules>
+
+	<properties>
+		<spring.version>4.2.2.RELEASE</spring.version>
+	</properties>
 
 	<distributionManagement>
 		<repository>
@@ -105,6 +111,16 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.10</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 	    </dependencies>
 	</dependencyManagement>
