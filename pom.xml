@@ -16,6 +16,7 @@
 		<module>of-commons-versioning</module>
 		<module>of-commons-web</module>
 		<module>of-commons-web-spring</module>
+		<module>of-commons-gateway</module>
 	</modules>
 
 	<properties>
