@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,8 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 public class ProxyServlet extends HttpServlet {
 
 	protected static final String P_MODULE_CONTAINER_PATH = "moduleContainerPath";
+	protected static final String P_PROXY_SHARED_KEY_NAME = "proxySharedKeyName";
+	protected static final String P_PROXY_SHARED_KEY_VALUE = "proxySharedKeyValue";
 
 	private static final String METHOD_DELETE = "DELETE";
 	private static final String METHOD_HEAD = "HEAD";
@@ -41,14 +44,18 @@ public class ProxyServlet extends HttpServlet {
 	private static final String METHOD_TRACE = "TRACE";
 
 	private String moduleContainerPath;
+	private String proxySharedKeyName;
+	private String proxySharedKeyValue;
 	private HttpClient proxyClient;
 
 	protected RequestHeaderHandler requestHandler;
 	protected ResponseHeaderHandler responseHandler;
 
 	@Override
-	public void init() throws ServletException {
-		this.moduleContainerPath = getServletConfig().getInitParameter(P_MODULE_CONTAINER_PATH);
+	public void init(ServletConfig config) throws ServletException {
+		this.moduleContainerPath = config.getInitParameter(P_MODULE_CONTAINER_PATH);
+		this.proxySharedKeyName = config.getInitParameter(P_PROXY_SHARED_KEY_NAME);
+		this.proxySharedKeyValue = config.getInitParameter(P_PROXY_SHARED_KEY_VALUE);
 		this.proxyClient = HttpClients.createDefault();
 	}
 
@@ -129,6 +136,7 @@ public class ProxyServlet extends HttpServlet {
 				proxyRequest.setHeader(key, value);
 			}
 		}
+		proxyRequest.setHeader(this.proxySharedKeyName, this.proxySharedKeyValue);
 	}
 
 	private void copyRequestBody(HttpServletRequest servletRequest, HttpEntityEnclosingRequest proxyRequest) throws NumberFormatException, IOException {
