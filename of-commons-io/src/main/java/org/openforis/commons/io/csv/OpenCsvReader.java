@@ -43,7 +43,15 @@ class OpenCsvReader extends CsvReaderDelegate {
 			throw new IllegalStateException("Headers already read");
 		}
 		String[] headers = csv.readNext();
-		setColumnNames(headers);
+		String[] trimHeaders = null;
+		if(headers!=null){
+			// Avoid bugs with Excel adding spaces to CSV columns
+			trimHeaders = new String[ headers.length];
+			for( int i=0; i<headers.length; i++){
+				trimHeaders[i] = headers[i].trim();
+			}
+		}
+		setColumnNames(trimHeaders);
 		headersRead = true;
 	}
 
