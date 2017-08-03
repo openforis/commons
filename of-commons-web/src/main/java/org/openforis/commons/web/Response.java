@@ -16,7 +16,7 @@ public class Response {
 		OK, ERROR;
 	}
 
-	Status status;
+	Status status = Status.OK;
 	Object object;
 	Map<String, Object> objects;
 	String errorMessage;
