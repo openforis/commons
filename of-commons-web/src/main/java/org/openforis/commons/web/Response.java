@@ -3,6 +3,7 @@
  */
 package org.openforis.commons.web;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,8 +19,9 @@ public class Response {
 
 	Status status = Status.OK;
 	Object object;
-	Map<String, Object> objects;
+	Map<String, Object> objects = new HashMap<String, Object>();
 	String errorMessage;
+	String[] errorMessageArguments;
 	
 	public Status getStatus() {
 		return status;
@@ -51,6 +53,14 @@ public class Response {
 	
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+	
+	public String[] getErrorMessageArguments() {
+		return errorMessageArguments;
+	}
+	
+	public void setErrorMessageArguments(String[] errorMessageArguments) {
+		this.errorMessageArguments = errorMessageArguments;
 	}
 	
 	public boolean hasErrors() {
