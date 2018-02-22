@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.openforis.commons</groupId>
     <artifactId>of-commons</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.1.3</version>
   </parent>
   <artifactId>of-commons-jdbc</artifactId>
 </project>
