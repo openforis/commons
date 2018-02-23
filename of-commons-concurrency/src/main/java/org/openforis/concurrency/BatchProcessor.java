@@ -11,7 +11,7 @@ import java.util.List;
  * @author S. Ricci
  * 
  */
-public abstract class BatchProcessor<T> implements Closeable {
+public abstract class BatchProcessor<T> implements Processor<T>, Closeable {
 
 	private final int batchSize;
 	private final Executor<T> executor;
@@ -24,12 +24,7 @@ public abstract class BatchProcessor<T> implements Closeable {
 		this.executor = executor;
 	}
 	
-	public void process(Collection<T> items) {
-		for (T item : items) {
-			process(item);
-		}
-	}
-
+	@Override
 	public void process(T item) {
 		queue.add(item);
 		if (queue.size() == batchSize) {
@@ -37,6 +32,12 @@ public abstract class BatchProcessor<T> implements Closeable {
 		}
 	}
 	
+	public void process(Collection<T> items) {
+		for (T item : items) {
+			process(item);
+		}
+	}
+
 	@Override
 	public void close() throws IOException {
 		flush();
