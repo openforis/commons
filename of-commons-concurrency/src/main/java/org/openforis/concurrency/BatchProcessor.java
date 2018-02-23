@@ -46,6 +46,7 @@ public abstract class BatchProcessor<T> implements Processor<T>, Closeable {
 	private void flush() {
 		if (! queue.isEmpty()) {
 			executor.execute(queue);
+			queue.clear();
 		}
 	}
 	
