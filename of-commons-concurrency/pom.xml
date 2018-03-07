@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openforis.commons</groupId>
 		<artifactId>of-commons</artifactId>
-		<version>0.1.6</version>
+		<version>0.1.7-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>of-commons-concurrency</artifactId>
