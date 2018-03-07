@@ -65,4 +65,8 @@ public class Objects {
 			return null;
 		}
 	}
+	
+	public static <T> T defaultIfNull(T value, T defaultValue) {
+		return value == null ? defaultValue : value;
+	}
 }
