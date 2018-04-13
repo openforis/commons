@@ -22,6 +22,7 @@ public abstract class Worker {
 	private Status status = Status.PENDING;
 	private String errorMessage;
 	private String [] errorMessageArgs;
+	private int weight = 1; //helps to better estimate Job progress percent
 	private transient Throwable lastException;
 	private transient Log log = LogFactory.getLog(getClass());
 	private transient List<WorkerStatusChangeListener> statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
@@ -115,6 +116,7 @@ public abstract class Worker {
 
 	public void abort() {
 		changeStatus(Status.ABORTED);
+		release();
 	}
 	
 	protected void changeStatus(Status newStatus) {
@@ -137,18 +139,26 @@ public abstract class Worker {
 		}
 	}
 	
-	protected void onEnd() {
+	protected void onEnd() {}
+	
+	protected void onCompleted() {}
+
+	protected void onFailed() {}
+
+	protected void onAborted() {}
+	
+	public void destroy() {
+		if (isRunning()) {
+			abort();
+		}
+		release();
 	}
 	
-	protected void onCompleted() {
-	}
-
-	protected void onFailed() {
-	}
-
-	protected void onAborted() {
-	}
-
+	/**
+	 * Releases the resource used during the execution
+	 */
+	protected void release() {}
+	
 	protected void notifyAllStatusChangeListeners(WorkerStatusChangeEvent event) {
 		for (WorkerStatusChangeListener listener : statusChangeListeners) {
 			listener.statusChanged(event);
@@ -241,6 +251,14 @@ public abstract class Worker {
 	
 	public String[] getErrorMessageArgs() {
 		return errorMessageArgs;
+	}
+	
+	public int getWeight() {
+		return weight;
+	}
+	
+	public void setWeight(int weight) {
+		this.weight = weight;
 	}
 	
 	protected void setErrorMessageArgs(String[] errorMessageArgs) {

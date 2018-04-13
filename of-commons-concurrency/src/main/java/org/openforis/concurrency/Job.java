@@ -15,15 +15,9 @@ public abstract class Job extends Worker {
 	
 	private transient JobManager jobManager;
 
-	private List<Worker> tasks;
-	private int currentTaskIndex;
+	private List<Worker> tasks = new ArrayList<Worker>();
+	private int currentTaskIndex = -1;
 	
-	protected Job() {
-		super();
-		this.tasks = new ArrayList<Worker>();
-		this.currentTaskIndex = -1;
-	}
-
 	/**
 	 * Builds all the tasks. Each task will be initialized before running it.
 	 * @throws Throwable 
@@ -42,13 +36,17 @@ public abstract class Job extends Worker {
 		case PENDING:
 			return 0;
 		default:
-			Worker currentTask = getCurrentTask();
-			if ( currentTask == null ) {
+			Worker cTask = getCurrentTask();
+			if ( cTask == null ) {
 				return 0;
 			} else {
-				int currentTaskProgress = currentTask == null ? 0: currentTask.getProgressPercent();
-				double tasksNum = Integer.valueOf(tasks.size()).doubleValue();
-				double result = ( 100d * currentTaskIndex + currentTaskProgress ) / tasksNum;
+				int totalWeight = 0;
+				double weightedProgress = 0;
+				for (Worker t : tasks) {
+					totalWeight += t.getWeight();
+					weightedProgress += t.getProgressPercent() * t.getWeight();
+				}
+				double result = weightedProgress / totalWeight;
 				//round result to integer
 				return Double.valueOf(Math.floor(result)).intValue();
 			}
@@ -192,6 +190,14 @@ public abstract class Job extends Worker {
 	 */
 	protected void initializeTask(Worker task) {
 		task.initialize();
+	}
+	
+	@Override
+	public void release() {
+		super.release();
+		for (Worker t: tasks) {
+			t.release();
+		}
 	}
 	
 	public List<Worker> getTasks() {

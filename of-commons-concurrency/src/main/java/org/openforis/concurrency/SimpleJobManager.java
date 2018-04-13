@@ -37,15 +37,13 @@ public class SimpleJobManager implements JobManager {
 
 	public synchronized void destroy() {
 		jobInfoUpdateTimer.cancel();
-		abortRunningJobs();
+		destroyRunningJobs();
 	}
 
-	private void abortRunningJobs() {
-		Collection<Job> jobs = jobByLockId.values();
-		for (Job job : jobs) {
-			if (job.isRunning()) {
-				job.abort();
-			}
+	private void destroyRunningJobs() {
+		Collection<JobInfo> jobInfos = jobInfoById.values();
+		for (JobInfo info : jobInfos) {
+			info.getJob().destroy();
 		}
 	}
 	
