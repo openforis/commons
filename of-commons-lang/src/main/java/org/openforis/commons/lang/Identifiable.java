@@ -3,10 +3,11 @@ package org.openforis.commons.lang;
 /**
  * 
  * @author A. Modragon
+ * @author S. Ricci
  *
  */
-public interface Identifiable {
+public interface Identifiable<I> {
 
-	Integer getId();
+	I getId();
 	
 }
