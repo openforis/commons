@@ -11,14 +11,11 @@ import java.util.Map;
 /**
  * @author G. Miceli
  */
-abstract class CsvProcessor {
+public abstract class CsvProcessor {
 
 	private DateFormat dateFormat;
 	private Map<String, Integer> columns;
 	
-	CsvProcessor() {
-	}
-
 	public DateFormat getDateFormat() {
 		if ( dateFormat == null ) {
 			setDateFormat("yyyy-MM-dd");
