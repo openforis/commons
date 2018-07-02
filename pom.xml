@@ -3,7 +3,7 @@
 
 	<groupId>org.openforis.commons</groupId>
 	<artifactId>of-commons</artifactId>
-	<version>0.1.9-SNAPSHOT</version>
+	<version>0.1.9</version>
 	<packaging>pom</packaging>
 
 	<modules>
