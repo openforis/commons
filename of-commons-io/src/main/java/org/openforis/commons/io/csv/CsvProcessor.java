@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.openforis.commons.io.flat.Field;
 
 /**
  * @author G. Miceli
@@ -14,7 +17,7 @@ import java.util.Map;
 public abstract class CsvProcessor {
 
 	private DateFormat dateFormat;
-	private Map<String, Integer> columns;
+	private Map<String, Field> fieldsByName;
 	
 	public DateFormat getDateFormat() {
 		if ( dateFormat == null ) {
@@ -30,26 +33,49 @@ public abstract class CsvProcessor {
 	public void setDateFormat(String pattern) {
 		this.dateFormat = new SimpleDateFormat(pattern);
 	}
+	
+	public List<Field> getFields() {
+		return Collections.unmodifiableList(new ArrayList<Field>(fieldsByName.values()));
+	}
 
-	public List<String> getColumnNames() {
-		return Collections.unmodifiableList(new ArrayList<String>(columns.keySet()));
+	public List<String> getFieldNames() {
+		return Collections.unmodifiableList(new ArrayList<String>(fieldsByName.keySet()));
 	}
 	
 	Map<String, Integer> getColumnIndices() {
-		return Collections.unmodifiableMap(columns);
+		Map<String, Integer> result = new LinkedHashMap<String, Integer>(fieldsByName.size());
+		for (Entry<String, Field> entry : fieldsByName.entrySet()) {
+			result.put(entry.getKey(), entry.getValue().getIndex());
+		}
+		return result;
 	}
 	
-	protected void setColumnNames(String[] headers) {
-		columns = new LinkedHashMap<String, Integer>();
-		for (int i = 0; i < headers.length; i++) {
-			String header = headers[i];
-			if ( header == null || header.trim().isEmpty() ) {
+	protected void setFields(List<Field> fields) {
+		setFields(fields.toArray(new Field[fields.size()]));
+	}
+	
+	protected void setFields(Field[] fields) {
+		fieldsByName = new LinkedHashMap<String, Field>(fields.length);
+		for (int i = 0; i < fields.length; i++) {
+			Field f = fields[i];
+			String name = f.getName();
+			if ( name == null || name.trim().isEmpty() ) {
 				throw new IllegalArgumentException("Empty column heading at index: " + i);
 			}
-			if ( columns.containsKey(header) ) {
-				throw new IllegalArgumentException("Duplicate header: " + header);
+			if ( fieldsByName.containsKey(name) ) {
+				throw new IllegalArgumentException("Duplicate header: " + name);
 			}
-			columns.put(header, i);
+			fieldsByName.put(name, f);
 		}
+	}
+	
+	protected void setFieldNames(String[] fieldNames) {
+		Field[] fields = new Field[fieldNames.length];
+		for (int i = 0; i < fieldNames.length; i++) {
+			String name = fieldNames[i];
+			Field c = new Field(name, Field.Type.STRING, i);
+			fields[i] = c;
+		}
+		setFields(fields);
 	}
 }

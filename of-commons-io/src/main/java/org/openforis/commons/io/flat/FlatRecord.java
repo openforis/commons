@@ -7,6 +7,8 @@ import java.util.List;
  */
 public interface FlatRecord {
 
+	Object[] toArray();
+
 	String[] toStringArray();
 
 	FlatDataStream getFlatDataStream();

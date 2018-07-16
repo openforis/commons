@@ -48,7 +48,7 @@ class ExcelReader extends CsvReaderDelegate {
 	    columnCount = row.getPhysicalNumberOfCells();
 	    
 	    String[] rowValues = extractValues(row);
-		setColumnNames(rowValues);
+		setFieldNames(rowValues);
 		headersRead = true;
 	}
 

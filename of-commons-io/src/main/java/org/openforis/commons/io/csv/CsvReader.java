@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.openforis.commons.io.OpenForisIOUtils;
 import org.openforis.commons.io.csv.ExcelReader.ExcelParseException;
+import org.openforis.commons.io.flat.Field;
 import org.openforis.commons.io.flat.FlatDataStream;
 import org.openforis.commons.io.flat.FlatRecord;
 
@@ -107,6 +108,11 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	}
 	
 	@Override
+	public List<Field> getFields() {
+		return delegate.getFields();
+	}
+	
+	@Override
 	public List<String> getFieldNames() {
 		return delegate.getFieldNames();
 	}
@@ -116,9 +122,8 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 		return delegate.nextRecord();
 	}
 	
-	@Override
 	public List<String> getColumnNames() {
-		return delegate.getColumnNames();
+		return getFieldNames();
 	}
 	
 	@Override

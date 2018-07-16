@@ -17,6 +17,7 @@ import org.openforis.commons.io.flat.FlatRecord;
  */
 public class CsvLine implements FlatRecord {
 	
+	private static final String NA = "NA";
 	private Map<String, Integer> columns;
 	private String[] line;
 	private CsvReader csvReader;
@@ -32,7 +33,7 @@ public class CsvLine implements FlatRecord {
 	}
 
 	private String toString(String txt) {
-		if ( txt == null || txt.trim().isEmpty() || "NA".equals(txt) ) { 		
+		if ( txt == null || txt.trim().isEmpty() || NA.equals(txt) ) { 		
 			return null;
 		} else {
 			return txt;
@@ -48,7 +49,7 @@ public class CsvLine implements FlatRecord {
 	}
 	
 	private boolean isNullValue(String val) {
-		return val == null || val.isEmpty() || "NA".equals(val);
+		return val == null || val.isEmpty() || NA.equals(val);
 	}
 
 	private Boolean toBoolean(String val) {
@@ -86,6 +87,11 @@ public class CsvLine implements FlatRecord {
 
 	public List<String> getColumnNames() {
 		return Collections.unmodifiableList(new ArrayList<String>(columns.keySet()));
+	}
+
+	@Override
+	public Object[] toArray() {
+		return line;
 	}
 
 	@Override
@@ -133,7 +139,7 @@ public class CsvLine implements FlatRecord {
 
 	@Override
 	public boolean isMissing(int idx) {
-		return line[idx] == null || line[idx].equals("NA") || line[idx].trim().isEmpty(); 
+		return line[idx] == null || line[idx].equals(NA) || line[idx].trim().isEmpty(); 
 	}
 
 	@Override

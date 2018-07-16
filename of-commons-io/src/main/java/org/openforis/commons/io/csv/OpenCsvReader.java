@@ -51,7 +51,7 @@ class OpenCsvReader extends CsvReaderDelegate {
 				trimHeaders[i] = headers[i].trim();
 			}
 		}
-		setColumnNames(trimHeaders);
+		setFieldNames(trimHeaders);
 		headersRead = true;
 	}
 

@@ -3,6 +3,7 @@ package org.openforis.commons.io.csv;
 import java.io.IOException;
 import java.util.List;
 
+import org.openforis.commons.io.flat.Field;
 import org.openforis.commons.io.flat.FlatRecord;
 
 /**
@@ -57,8 +58,12 @@ public abstract class CsvReaderDelegate extends CsvProcessor {
 		return linesRead;
 	}
 
+	public final List<Field> getFields() {
+		return super.getFields();
+	}
+	
 	public final List<String> getFieldNames() {
-		return getColumnNames();
+		return super.getFieldNames();
 	}
 
 	public final FlatRecord nextRecord() throws IOException {

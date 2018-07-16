@@ -53,8 +53,14 @@ public class CsvWriter extends FlatDataWriter {
 	}
 	
 	@Override
-	protected void writeNextInternal(String[] line) {
-		csvWriter.writeNext(line);
+	protected void writeNextInternal(Object[] values) {
+		String[] stringValues = new String[values.length];
+		for (int i = 0; i < values.length; i++) {
+			Object val = values[i];
+			String stringVal = val == null ? null : val.toString();
+			stringValues[i] = stringVal;
+		}
+		csvWriter.writeNext(stringValues);
 	}
 	
 	@Override

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface FlatDataStream {
 	
-	List<String> getFieldNames();
+	List<Field> getFields();
 	
 	FlatRecord nextRecord() throws IOException;
 	
