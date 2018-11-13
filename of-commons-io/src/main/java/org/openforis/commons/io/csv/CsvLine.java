@@ -1,11 +1,8 @@
 package org.openforis.commons.io.csv;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.openforis.commons.io.flat.FlatDataStream;
 import org.openforis.commons.io.flat.FlatRecord;
@@ -18,12 +15,12 @@ import org.openforis.commons.io.flat.FlatRecord;
 public class CsvLine implements FlatRecord {
 	
 	private static final String NA = "NA";
-	private Map<String, Integer> columns;
+	private List<String> columnNames;
 	private String[] line;
 	private CsvReader csvReader;
 	
 	CsvLine(CsvReader csvReader, String[] line) {
-		this.columns = csvReader.getColumnIndices();
+		this.columnNames = csvReader.getColumnNames();
 		this.csvReader = csvReader;
 		this.line = line;
 	}
@@ -74,7 +71,7 @@ public class CsvLine implements FlatRecord {
 		if ( column == null ) {
 			throw new IllegalStateException("Column headers not yet read");
 		}
-		return columns.get(column);
+		return columnNames.indexOf(column);
 	}
 
 	private Date toDate(String val) {
@@ -86,7 +83,7 @@ public class CsvLine implements FlatRecord {
 	}
 
 	public List<String> getColumnNames() {
-		return Collections.unmodifiableList(new ArrayList<String>(columns.keySet()));
+		return columnNames;
 	}
 
 	@Override

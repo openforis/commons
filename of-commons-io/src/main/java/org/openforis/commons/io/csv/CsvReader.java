@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.DateFormat;
 import java.util.List;
-import java.util.Map;
 
 import org.openforis.commons.io.OpenForisIOUtils;
 import org.openforis.commons.io.csv.ExcelReader.ExcelParseException;
@@ -129,11 +128,6 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	@Override
 	public DateFormat getDateFormat() {
 		return delegate.getDateFormat();
-	}
-	
-	@Override
-	Map<String, Integer> getColumnIndices() {
-		return delegate.getColumnIndices();
 	}
 	
 	/**

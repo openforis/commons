@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openforis.commons.io.flat.Field;
 
@@ -18,6 +17,7 @@ public abstract class CsvProcessor {
 
 	private DateFormat dateFormat;
 	private Map<String, Field> fieldsByName;
+	private List<String> fieldNames;
 	
 	public DateFormat getDateFormat() {
 		if ( dateFormat == null ) {
@@ -39,15 +39,7 @@ public abstract class CsvProcessor {
 	}
 
 	public List<String> getFieldNames() {
-		return Collections.unmodifiableList(new ArrayList<String>(fieldsByName.keySet()));
-	}
-	
-	Map<String, Integer> getColumnIndices() {
-		Map<String, Integer> result = new LinkedHashMap<String, Integer>(fieldsByName.size());
-		for (Entry<String, Field> entry : fieldsByName.entrySet()) {
-			result.put(entry.getKey(), entry.getValue().getIndex());
-		}
-		return result;
+		return fieldNames;
 	}
 	
 	protected void setFields(List<Field> fields) {
@@ -55,6 +47,7 @@ public abstract class CsvProcessor {
 	}
 	
 	protected void setFields(Field[] fields) {
+		fieldNames = new ArrayList<String>(fields.length);
 		fieldsByName = new LinkedHashMap<String, Field>(fields.length);
 		for (int i = 0; i < fields.length; i++) {
 			Field f = fields[i];
@@ -62,10 +55,11 @@ public abstract class CsvProcessor {
 			if ( name == null || name.trim().isEmpty() ) {
 				throw new IllegalArgumentException("Empty column heading at index: " + i);
 			}
-			if ( fieldsByName.containsKey(name) ) {
+			if ( fieldNames.contains(name) ) {
 				throw new IllegalArgumentException("Duplicate header: " + name);
 			}
 			fieldsByName.put(name, f);
+			fieldNames.add(name);
 		}
 	}
 	
