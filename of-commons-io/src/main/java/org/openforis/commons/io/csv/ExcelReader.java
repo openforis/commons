@@ -7,10 +7,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,38 +26,47 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
  */
 class ExcelReader extends CsvReaderDelegate {
 
-	private static final String DATE_TIME_FORMAT 	= "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-	
+	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
 	private Sheet sheet;
 	private int columnCount;
 	private Workbook wb;
-	
+
 	public ExcelReader(File file, CsvReader csvReader) throws FileNotFoundException {
 		super(csvReader);
 		try {
 			wb = WorkbookFactory.create(file);
 			sheet = wb.getSheetAt(0);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new ExcelParseException("Failed to parse " + file.getAbsolutePath() + " as Excel", e);
 		}
 	}
 
 	@Override
 	public void readHeaders() throws IOException {
-		if ( headersRead ) {
+		if (headersRead) {
 			throw new IllegalStateException("Headers already read");
 		}
 		Row row = sheet.getRow(0);
-	    columnCount = row.getPhysicalNumberOfCells();
-	    
-	    String[] rowValues = extractValues(row);
+		columnCount = row.getPhysicalNumberOfCells();
+
+		String[] rowValues = extractValues(row);
+		
+		// remove last empty column values
+		for (; columnCount >= 0; columnCount --) {
+			String val = rowValues[columnCount - 1];
+			if (StringUtils.isNotBlank(val))
+				break;
+		}
+		rowValues = Arrays.copyOf(rowValues, columnCount);
+		
 		setFieldNames(rowValues);
 		headersRead = true;
 	}
 
 	private String[] extractValues(Row row) {
 		String[] rowValues = new String[columnCount];
-	    for (int colIdx = 0; colIdx < columnCount; colIdx++) {
+		for (int colIdx = 0; colIdx < columnCount; colIdx++) {
 			rowValues[colIdx] = getCellStringValue(row, colIdx);
 		}
 		return rowValues;
@@ -65,27 +77,25 @@ class ExcelReader extends CsvReaderDelegate {
 		if (cell == null) {
 			return "";
 		}
-		int cellType = cell.getCellType();
-		String value;
-		if (cellType == Cell.CELL_TYPE_BLANK) {
-			value = "";
-		} else if (cellType == Cell.CELL_TYPE_STRING) {
-			value = cell.getStringCellValue();
-		} else if (cellType == Cell.CELL_TYPE_NUMERIC) {
-			if (HSSFDateUtil.isCellDateFormatted(cell)) {
+		switch (cell.getCellType()) {
+		case BLANK:
+			return "";
+		case STRING:
+			return cell.getStringCellValue();
+		case NUMERIC:
+			if (DateUtil.isCellDateFormatted(cell)) {
 				Date date = cell.getDateCellValue();
-				value = new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
+				return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
 			} else {
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				value = cell.getStringCellValue();
+				cell.setCellType(CellType.STRING);
+				return cell.getStringCellValue();
 			}
-		} else if(cellType == Cell.CELL_TYPE_BOOLEAN) {
-			value = String.valueOf(cell.getBooleanCellValue());
-		} else {
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			value = cell.getStringCellValue();
+		case BOOLEAN:
+			return String.valueOf(cell.getBooleanCellValue());
+		default:
+			cell.setCellType(CellType.STRING);
+			return cell.getStringCellValue();
 		}
-		return value;
 	}
 
 	@Override
@@ -94,10 +104,9 @@ class ExcelReader extends CsvReaderDelegate {
 		if (row == null) {
 			return null;
 		}
-		String[] line = extractValues(row);
-		return line;
+		return extractValues(row);
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		wb.close();
@@ -105,6 +114,7 @@ class ExcelReader extends CsvReaderDelegate {
 
 	/**
 	 * Returns the number of lines including the headers
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
@@ -112,7 +122,7 @@ class ExcelReader extends CsvReaderDelegate {
 	public int size() throws IOException {
 		return sheet.getPhysicalNumberOfRows();
 	}
-	
+
 	static class ExcelParseException extends RuntimeException {
 
 		private static final long serialVersionUID = 1L;
@@ -120,6 +130,6 @@ class ExcelReader extends CsvReaderDelegate {
 		public ExcelParseException(String message, Throwable cause) {
 			super(message, cause);
 		}
-		
+
 	}
 }
