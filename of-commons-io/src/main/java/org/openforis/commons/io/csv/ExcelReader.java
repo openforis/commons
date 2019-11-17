@@ -7,10 +7,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -43,25 +41,16 @@ class ExcelReader extends CsvReaderDelegate {
 	}
 
 	@Override
-	public void readHeaders() throws IOException {
-		if (headersRead) {
-			throw new IllegalStateException("Headers already read");
-		}
+	public String[] readHeadersInternal() throws IOException {
 		Row row = sheet.getRow(0);
 		columnCount = row.getPhysicalNumberOfCells();
-
-		String[] rowValues = extractValues(row);
-		
-		// remove last empty column values
-		for (; columnCount >= 0; columnCount --) {
-			String val = rowValues[columnCount - 1];
-			if (StringUtils.isNotBlank(val))
-				break;
-		}
-		rowValues = Arrays.copyOf(rowValues, columnCount);
-		
-		setFieldNames(rowValues);
-		headersRead = true;
+		return extractValues(row);
+	}
+	
+	@Override
+	public void readHeaders() throws IOException {
+		super.readHeaders();
+		columnCount = getFieldNames() == null ? 0 : getFieldNames().size();
 	}
 
 	private String[] extractValues(Row row) {
