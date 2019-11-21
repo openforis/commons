@@ -46,7 +46,7 @@ class ExcelReader extends CsvReaderDelegate {
 		columnCount = row.getPhysicalNumberOfCells();
 		return extractValues(row);
 	}
-	
+
 	@Override
 	public void readHeaders() throws IOException {
 		super.readHeaders();
@@ -67,23 +67,29 @@ class ExcelReader extends CsvReaderDelegate {
 			return "";
 		}
 		switch (cell.getCellType()) {
-		case BLANK:
-			return "";
-		case STRING:
-			return cell.getStringCellValue();
 		case NUMERIC:
-			if (DateUtil.isCellDateFormatted(cell)) {
-				Date date = cell.getDateCellValue();
-				return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
-			} else {
-				cell.setCellType(CellType.STRING);
-				return cell.getStringCellValue();
-			}
+			return getNumericStringValue(cell);
 		case BOOLEAN:
 			return String.valueOf(cell.getBooleanCellValue());
 		default:
 			cell.setCellType(CellType.STRING);
 			return cell.getStringCellValue();
+		}
+	}
+
+	private String getNumericStringValue(Cell cell) {
+		if (DateUtil.isCellDateFormatted(cell)) {
+			Date date = cell.getDateCellValue();
+			return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
+		} else {
+			double doubleVal = cell.getNumericCellValue();
+			Double doubleValObj = Double.valueOf(doubleVal);
+			if (doubleVal % 1 == 0 && doubleVal < Integer.MAX_VALUE) {
+				// values like 1.0 will be considered as integers
+				return String.valueOf(doubleValObj.intValue());
+			} else {
+				return String.valueOf(doubleVal);
+			}
 		}
 	}
 
