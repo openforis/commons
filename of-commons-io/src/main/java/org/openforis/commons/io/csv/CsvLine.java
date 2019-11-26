@@ -45,6 +45,10 @@ public class CsvLine implements FlatRecord {
 		return isNullValue(val) ? null : Double.valueOf(val);
 	}
 	
+	private Long toLong(String val) {
+		return isNullValue(val) ? null : Long.valueOf(val);
+	}
+	
 	private boolean isNullValue(String val) {
 		return val == null || val.isEmpty() || NA.equals(val);
 	}
@@ -115,6 +119,8 @@ public class CsvLine implements FlatRecord {
 		String value = line[idx];
 		if ( type.isAssignableFrom(Integer.class) ) {
 			return (T) toInteger(value);
+		} else if ( type.isAssignableFrom(Long.class) ) {
+			return (T) toLong(value);
 		} else if ( type.isAssignableFrom(Double.class) ) {
 			return (T) toDouble(value);
 		} else if ( type.isAssignableFrom(Boolean.class) ) {
