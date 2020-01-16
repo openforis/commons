@@ -85,11 +85,20 @@ public class CollectionUtils {
 	    	Iterator<T> it = collection.iterator();
 	        while(it.hasNext()) {
 	            T item = it.next();
-				if (predicate.evaluate(item) == false) {
+				if (!predicate.evaluate(item)) {
 	                it.remove();
 	            }
 	        }
 	    }
+	}
+	
+	public static <T> T find (Collection<T> items, Predicate<T> predicate) {
+		for (T item : items) {
+			if (predicate.evaluate(item)) {
+				return item;
+			}
+		}
+		return null;
 	}
 	
 	public static <T> T findItem(Collection<T> items, Object key) {
@@ -104,6 +113,13 @@ public class CollectionUtils {
 			}
 		}
 		return null;
+	}
+	
+	public <T> Collection<T> addIgnoreNull(Collection<T> items, T item) {
+		if (item != null ) {
+			items.add(item);
+		}
+		return items;
 	}
 	
 	public static <I, T> List<I> project(Collection<T> items, String propertyName) {
