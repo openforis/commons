@@ -80,6 +80,10 @@ public class CollectionUtils {
 		}
 	}
 	
+	public static boolean isNotEmpty(Collection<?> collection) {
+		return collection != null && !collection.isEmpty();
+	}
+	
 	public static <T, C extends Collection<T>> void filter(C collection, Predicate<T> predicate) {
 	    if (collection != null && predicate != null) {
 	    	Iterator<T> it = collection.iterator();
