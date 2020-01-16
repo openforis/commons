@@ -25,7 +25,12 @@ public class Numbers {
 		try {
 			return Integer.parseInt(value);
 		} catch(NumberFormatException e) {
-			return null;
+			Double doubleVal = toDoubleObject(value);
+			if (doubleVal == null || doubleVal % 1 != 0) {
+				return null;
+			} else {
+				return Integer.valueOf(doubleVal.intValue());
+			}
 		}
 	}
 
