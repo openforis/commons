@@ -21,7 +21,7 @@ import org.openforis.commons.lang.Objects;
  * @author S. Ricci
  * 
  */
-public class CollectionUtils {
+public abstract class CollectionUtils {
 
 	/**
 	 * 
@@ -119,7 +119,7 @@ public class CollectionUtils {
 		return null;
 	}
 	
-	public <T> Collection<T> addIgnoreNull(Collection<T> items, T item) {
+	public static <T> Collection<T> addIgnoreNull(Collection<T> items, T item) {
 		if (item != null ) {
 			items.add(item);
 		}
