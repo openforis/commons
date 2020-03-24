@@ -28,7 +28,7 @@ public class ExcelFlatValuesWriter extends FlatDataWriter {
 	protected void writeNextInternal(Object[] values) {
 		Row row = sheet.createRow(Long.valueOf(linesWritten).intValue());
 		// Create cells
-		for (int i = 0; i < getFields().size(); i++) {
+		for (int i = 0; i < getFields().size() && i < values.length; i++) {
 			Cell cell = row.createCell(i);
 			Field field = getFields().get(i);
 			Object value = values[i];
