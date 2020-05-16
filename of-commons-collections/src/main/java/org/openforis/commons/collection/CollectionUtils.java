@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -193,6 +194,35 @@ public abstract class CollectionUtils {
 		ArrayList<T> result = new ArrayList<T>(newSize);
 		result.addAll(list);
 		result.addAll(Collections.nCopies(newSize - list.size(), fillValue));
+		return result;
+	}
+	
+	public static <T extends Object> Set<T> intersect(Collection<T> listA, Collection<T> listB) {
+		Set<T> result = new LinkedHashSet<T>();
+		for (T item : listA) {
+			if (listB.contains(item)) {
+				result.add(item);
+			}
+		}
+		return result;
+	}
+	
+	public static <T extends Object> List<Integer> indexOfItems(List<T> list, Collection<T> items) {
+		List<Integer> result = new ArrayList<Integer>();
+		for (T item : items) {
+			int index = list.indexOf(item);
+			if (index >= 0) {
+				result.add(index);
+			}
+		}
+		return result;
+	}
+	
+	public static <T extends Object> List<T> sublistByIndexes(List<T> source, List<Integer> indexes) {
+		List<T> result = new ArrayList<T>();
+		for (Integer index : indexes) {
+			result.add(source.get(index));
+		}
 		return result;
 	}
 	
