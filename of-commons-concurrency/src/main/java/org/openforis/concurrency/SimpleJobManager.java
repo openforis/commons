@@ -85,24 +85,31 @@ public class SimpleJobManager implements JobManager {
 	 * @throws Throwable 
 	 */
 	public <J extends Job> void start(J job) {
-		start(job, true);
+		start(job, new JobConfig());
 	}
 	
 	@Override
 	public <J extends Job> void start(J job, boolean async) {
-		start(job, null, async);
+		start(job, new JobConfig(async));
 	}
 
 	synchronized public <J extends Job> void start(final J job, final String lockId) {
-		start(job, lockId, true);
+		start(job, new JobConfig(true, lockId));
 	}
 	
 	synchronized public <J extends Job> void start(final J job, final String lockId, boolean async) {
-		jobInfoById.put(job.getId().toString(), new JobInfo(job));
+		start(job, new JobConfig(async, lockId));
+	}
+	
+	synchronized public <J extends Job> void start(final J job, final JobConfig config) {
+		if (!config.isTransientJob()) {
+			jobInfoById.put(job.getId().toString(), new JobInfo(job));
+		}
 		
 		job.initialize();
 		
 		if ( job.isPending() ) {
+			final String lockId = config.getLockId();
 			if ( lockId != null ) {
 				lock(job, lockId);
 			}
@@ -121,7 +128,7 @@ public class SimpleJobManager implements JobManager {
 				}
 
 			};
-			if ( async ) {
+			if ( config.isAsync() ) {
 				jobExecutor.execute(jobRunnable);
 			} else {
 				jobRunnable.run();

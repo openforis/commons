@@ -19,4 +19,6 @@ public interface JobManager {
 	<J extends Job> void start(J job, String lockId);
 
 	<J extends Job> void start(J job, String lockId, boolean async);
+	
+	<J extends Job> void start(J job, JobConfig config);
 }
