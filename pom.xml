@@ -3,7 +3,7 @@
 
 	<groupId>org.openforis.commons</groupId>
 	<artifactId>commons</artifactId>
-	<version>0.1.27-SNAPSHOT</version>
+	<version>0.1.27</version>
 	<packaging>pom</packaging>
 
 	<name>Open Foris Commons library</name>
@@ -67,7 +67,7 @@
 		<url>https://github.com/openforis/commons</url>
 		<connection>scm:git:git@github.com:openforis/commons.git</connection>
 		<developerConnection>scm:git:git@github.com:openforis/commons.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.1.27</tag>
 	</scm>
 
 	<build>
