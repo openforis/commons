@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.openforis.commons</groupId>
 		<artifactId>of-commons</artifactId>
-		<version>0.1.23</version>
+		<version>0.1.24-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
