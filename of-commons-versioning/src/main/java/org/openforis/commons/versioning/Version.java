@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class Version implements Comparable<Version> {
 
-	private static final String VERSION_PATTERN = "(\\d+)\\.(\\d+)(\\.(\\d+))?(-(a|b|Alpha|Beta)(\\d+)?)?(-SNAPSHOT)?";
+	private static final String VERSION_PATTERN = "(\\d+)\\.(\\d+)(\\.(\\d+))?(\\.?-?(a|b|Alpha|Beta)(\\d+)?)?(-SNAPSHOT)?";
 
 	public enum Significance {
 		MAJOR, MINOR, BUILD, TEST_LEVEL, TEST_VERSION, SNAPSHOT
