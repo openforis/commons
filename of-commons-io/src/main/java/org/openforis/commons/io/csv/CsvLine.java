@@ -1,4 +1,5 @@
 package org.openforis.commons.io.csv;
+
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,30 +14,28 @@ import org.openforis.commons.io.flat.FlatRecord;
  *
  */
 public class CsvLine implements FlatRecord {
-	
+
 	private static final String NA = "NA";
+	
 	private List<String> columnNames;
 	private String[] line;
 	private CsvReader csvReader;
-	
+	private boolean naAsNull = true; // if true considers the value NA as null
+
 	CsvLine(CsvReader csvReader, String[] line) {
 		this.columnNames = csvReader.getColumnNames();
 		this.csvReader = csvReader;
 		this.line = line;
 	}
-	
+
 	public String[] getLine() {
 		return line;
 	}
 
 	private String toString(String txt) {
-		if ( txt == null || txt.trim().isEmpty() || NA.equals(txt) ) { 		
-			return null;
-		} else {
-			return txt;
-		}
+		return isNullValue(txt) ? null : txt;
 	}
-	
+
 	private Integer toInteger(String val) {
 		return isNullValue(val) ? null : Double.valueOf(val).intValue();
 	}
@@ -44,35 +43,31 @@ public class CsvLine implements FlatRecord {
 	private Double toDouble(String val) {
 		return isNullValue(val) ? null : Double.valueOf(val);
 	}
-	
+
 	private Long toLong(String val) {
 		return isNullValue(val) ? null : Long.valueOf(val);
 	}
-	
+
 	private boolean isNullValue(String val) {
-		return val == null || val.isEmpty() || NA.equals(val);
+		return val == null || val.trim().isEmpty() || naAsNull && NA.equals(val);
 	}
 
 	private Boolean toBoolean(String val) {
-		if ( isNullValue(val) ) {
+		if (isNullValue(val)) {
 			return null;
-		} else if ( val.equals("1") || 
-					val.equalsIgnoreCase("T") || 
-					val.equalsIgnoreCase("Y") || 
-					val.equalsIgnoreCase("true") ){
+		} else if (val.equals("1") || val.equalsIgnoreCase("T") || val.equalsIgnoreCase("Y")
+				|| val.equalsIgnoreCase("true")) {
 			return true;
-		} else if ( val.equals("0") || 
-					val.equalsIgnoreCase("F") || 
-					val.equalsIgnoreCase("N") || 
-					val.equalsIgnoreCase("false") ){
+		} else if (val.equals("0") || val.equalsIgnoreCase("F") || val.equalsIgnoreCase("N")
+				|| val.equalsIgnoreCase("false")) {
 			return false;
 		} else {
-			throw new NumberFormatException("'"+val+"' is not a valid boolean value");
+			throw new NumberFormatException("'" + val + "' is not a valid boolean value");
 		}
 	}
 
 	public Integer getColumnIndex(String column) {
-		if ( column == null ) {
+		if (column == null) {
 			throw new IllegalStateException("Column headers not yet read");
 		}
 		return columnNames.indexOf(column);
@@ -101,7 +96,7 @@ public class CsvLine implements FlatRecord {
 	}
 
 	@Override
-	public FlatDataStream getFlatDataStream() {		
+	public FlatDataStream getFlatDataStream() {
 		return csvReader;
 	}
 
@@ -117,20 +112,20 @@ public class CsvLine implements FlatRecord {
 			return null;
 		}
 		String value = line[idx];
-		if ( type.isAssignableFrom(Integer.class) ) {
+		if (type.isAssignableFrom(Integer.class)) {
 			return (T) toInteger(value);
-		} else if ( type.isAssignableFrom(Long.class) ) {
+		} else if (type.isAssignableFrom(Long.class)) {
 			return (T) toLong(value);
-		} else if ( type.isAssignableFrom(Double.class) ) {
+		} else if (type.isAssignableFrom(Double.class)) {
 			return (T) toDouble(value);
-		} else if ( type.isAssignableFrom(Boolean.class) ) {
+		} else if (type.isAssignableFrom(Boolean.class)) {
 			return (T) toBoolean(value);
-		} else if ( type.isAssignableFrom(String.class) ) {
+		} else if (type.isAssignableFrom(String.class)) {
 			return (T) toString(value);
-		} else if ( type.isAssignableFrom(Date.class) ) {
+		} else if (type.isAssignableFrom(Date.class)) {
 			return (T) toDate(value);
 		} else {
-			throw new IllegalArgumentException("Unsupported type "+type);
+			throw new IllegalArgumentException("Unsupported type " + type);
 		}
 	}
 
@@ -142,7 +137,7 @@ public class CsvLine implements FlatRecord {
 
 	@Override
 	public boolean isMissing(int idx) {
-		return line[idx] == null || line[idx].equals(NA) || line[idx].trim().isEmpty(); 
+		return isNullValue(line[idx]);
 	}
 
 	@Override
@@ -150,25 +145,38 @@ public class CsvLine implements FlatRecord {
 		Integer idx = getColumnIndex(column);
 		return idx == null || isMissing(idx);
 	}
+
+	@Override
+	public boolean isEmpty() {
+		for (int i = 0; i < line.length; i++) {
+			if (!isMissing(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	public void setNaAsNull(boolean naAsNull) {
+		this.naAsNull = naAsNull;
+	}
+
 	@Override
 	public String toString() {
 		return Arrays.toString(line);
 	}
-	
+
 	@Override
 	public <T> T getValue(String column, Class<T> type, T defaultValue) {
 		try {
 			T val = getValue(column, type);
-			if ( val == null ) {
+			if (val == null) {
 				return defaultValue;
 			}
 			return val;
-		} catch ( DateFormatException e ) {
+		} catch (DateFormatException e) {
 			return defaultValue;
-		} catch ( NumberFormatException e ) {
+		} catch (NumberFormatException e) {
 			return defaultValue;
 		}
 	}
 }
- 

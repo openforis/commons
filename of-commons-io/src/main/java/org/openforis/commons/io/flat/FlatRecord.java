@@ -23,5 +23,7 @@ public interface FlatRecord {
 	
 	boolean isMissing(String name);
 	
+	boolean isEmpty();
+	
 	<T> T getValue(String string, Class<T> type, T object);
 }
