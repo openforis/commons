@@ -1,6 +1,6 @@
 package org.openforis.commons.io.csv;
 
-import static au.com.bytecode.opencsv.CSVWriter.NO_QUOTE_CHARACTER;
+import static com.opencsv.ICSVWriter.NO_QUOTE_CHARACTER;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,7 +12,8 @@ import java.io.Writer;
 import org.openforis.commons.io.OpenForisIOUtils;
 import org.openforis.commons.io.flat.FlatDataWriter;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.ICSVWriter;
 
 /**
  * @author G. Miceli
@@ -23,7 +24,7 @@ public class CsvWriter extends FlatDataWriter {
 	private static final char COMMA = ',';
 	private static final char DEFAULT_SEPARATOR = COMMA;
 	
-	private CSVWriter csvWriter;
+	private ICSVWriter csvWriter;
 	
 	public CsvWriter(Writer writer) {
 		this(writer, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
@@ -49,7 +50,7 @@ public class CsvWriter extends FlatDataWriter {
 	}
 
 	public CsvWriter(Writer writer, char separator, char quoteChar) {
-		csvWriter = new CSVWriter(writer, separator, quoteChar);
+		this.csvWriter = new CSVWriterBuilder(writer).withSeparator(separator).withQuoteChar(quoteChar).build();
 	}
 	
 	@Override

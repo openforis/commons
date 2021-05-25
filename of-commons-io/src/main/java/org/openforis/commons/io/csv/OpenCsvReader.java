@@ -9,7 +9,11 @@ import java.io.Reader;
 
 import org.openforis.commons.io.OpenForisIOUtils;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 /**
  * 
@@ -35,17 +39,27 @@ class OpenCsvReader extends CsvReaderDelegate {
 	@Deprecated
 	public OpenCsvReader(Reader reader, char separator, char quoteChar, CsvReader csvReader) {
 		super(csvReader);
-		this.csv = new CSVReader(reader, separator, quoteChar);
+		CSVParser parser = new CSVParserBuilder().withSeparator(separator).withQuoteChar(quoteChar).build();
+		this.csv = new CSVReaderBuilder(reader).withCSVParser(parser).build();
+		
 	}
 
 	@Override
 	public String[] readHeadersInternal() throws IOException {
-		return csv.readNext();
+		try {
+			return csv.readNext();
+		} catch (CsvValidationException e) {
+			throw new IOException(e);
+		}
 	}
 
 	@Override
 	protected String[] line(long lineIdx) throws IOException {
-		return csv.readNext();
+		try {
+			return csv.readNext();
+		} catch (CsvValidationException e) {
+			throw new IOException(e);
+		}
 	}
 
 	@Override

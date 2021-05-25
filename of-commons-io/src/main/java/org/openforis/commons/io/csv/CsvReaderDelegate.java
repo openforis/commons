@@ -1,5 +1,6 @@
 package org.openforis.commons.io.csv;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import org.openforis.commons.io.flat.FlatRecord;
  * @author S. Ricci
  *
  */
-public abstract class CsvReaderDelegate extends CsvProcessor {
+public abstract class CsvReaderDelegate extends CsvProcessor implements Closeable {
 
 	protected boolean headersRead;
 	protected long linesRead;
@@ -33,8 +34,6 @@ public abstract class CsvReaderDelegate extends CsvProcessor {
 	 * @throws IOException
 	 */
 	public abstract int size() throws IOException;
-
-	public abstract void close() throws IOException;
 
 	public abstract String[] readHeadersInternal() throws IOException;
 
