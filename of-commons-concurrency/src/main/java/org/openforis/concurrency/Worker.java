@@ -23,7 +23,7 @@ public abstract class Worker {
 	private String [] errorMessageArgs;
 	private int weight = 1; //helps to better estimate Job progress percent
 	private transient Throwable lastException;
-	private transient Logger log = Logger.getLogger(getClass().getName());
+	private transient Logger log;
 	private transient List<WorkerStatusChangeListener> statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
 
 	public enum Status {
