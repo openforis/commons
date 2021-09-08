@@ -233,7 +233,7 @@ public abstract class Worker {
 		return this.id;
 	}
 
-	protected Logger log() {
+	private Logger log() {
 		if (this.log == null) {
 			this.log = Logger.getLogger(getClass().getName());
 		}
@@ -242,6 +242,14 @@ public abstract class Worker {
 	
 	protected void logDebug(String message) {
 		log().log(Level.FINE, message);
+	}
+	
+	protected void logInfo(String message) {
+		log().log(Level.INFO, message);
+	}
+	
+	protected void logWarning(String message) {
+		log().log(Level.WARNING, message);
 	}
 	
 	protected void logError(String message, Throwable throwable) {
