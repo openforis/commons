@@ -24,7 +24,7 @@ public class CsvWriter extends FlatDataWriter {
 	private static final char COMMA = ',';
 	private static final char DEFAULT_SEPARATOR = COMMA;
 	
-	private ICSVWriter csvWriter;
+	private ICSVWriter delegate;
 	
 	public CsvWriter(Writer writer) {
 		this(writer, DEFAULT_SEPARATOR, NO_QUOTE_CHARACTER);
@@ -50,7 +50,7 @@ public class CsvWriter extends FlatDataWriter {
 	}
 
 	public CsvWriter(Writer writer, char separator, char quoteChar) {
-		this.csvWriter = new CSVWriterBuilder(writer).withSeparator(separator).withQuoteChar(quoteChar).build();
+		this.delegate = new CSVWriterBuilder(writer).withSeparator(separator).withQuoteChar(quoteChar).build();
 	}
 	
 	@Override
@@ -61,16 +61,20 @@ public class CsvWriter extends FlatDataWriter {
 			String stringVal = val == null ? null : val.toString();
 			stringValues[i] = stringVal;
 		}
-		csvWriter.writeNext(stringValues);
+		delegate.writeNext(stringValues);
 	}
 	
 	@Override
 	public void flush() throws IOException {
-		csvWriter.flush();
+		if (delegate != null) {
+			delegate.flush();
+		}
 	}
 	
 	@Override
 	public void close() throws IOException {
-		csvWriter.close();
+		if (delegate != null) {
+			delegate.close();
+		}
 	}
 }

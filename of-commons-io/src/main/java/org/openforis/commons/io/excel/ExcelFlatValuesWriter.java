@@ -55,12 +55,15 @@ public class ExcelFlatValuesWriter extends FlatDataWriter {
 
 	@Override
 	public void flush() throws IOException {
+		// no need to flush values
 	}
 
 	@Override
 	public void close() throws IOException {
-		workbook.write(os);
-		workbook.close();
+		if (workbook != null) {
+			workbook.write(os);
+			workbook.close();
+		}
 	}
 
 }

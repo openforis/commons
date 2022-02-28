@@ -91,7 +91,9 @@ public class CsvReader extends CsvProcessor implements FlatDataStream, Closeable
 	
 	@Override
 	public void close() throws IOException {
-		delegate.close();
+		if (delegate != null) {
+			delegate.close();
+		}
 	}
 
 	public boolean isHeadersRead() {

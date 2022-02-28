@@ -104,7 +104,9 @@ class ExcelReader extends CsvReaderDelegate {
 
 	@Override
 	public void close() throws IOException {
-		wb.close();
+		if (wb != null) {
+			wb.close();
+		}
 	}
 
 	/**

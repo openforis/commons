@@ -64,7 +64,9 @@ class OpenCsvReader extends CsvReaderDelegate {
 
 	@Override
 	public void close() throws IOException {
-		csv.close();
+		if (csv != null) {
+			csv.close();
+		}
 	}
 
 	/**
