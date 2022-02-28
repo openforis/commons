@@ -3,9 +3,8 @@ package org.openforis.concurrency;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for asynchronous
@@ -24,7 +23,7 @@ public abstract class Worker {
 	private String [] errorMessageArgs;
 	private int weight = 1; //helps to better estimate Job progress percent
 	private transient Throwable lastException;
-	private transient Log log = LogFactory.getLog(getClass());
+	private transient Logger log;
 	private transient List<WorkerStatusChangeListener> statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
 
 	public enum Status {
@@ -32,7 +31,7 @@ public abstract class Worker {
 	}
 
 	public void initialize() {
-		log().debug("Initializing...");
+		logDebug("Initializing...");
 		
 		try {
 			validateInput();
@@ -54,7 +53,7 @@ public abstract class Worker {
 	protected void initializeInternalVariables() throws Throwable {}
 	
 	protected void beforeExecute() {
-		log().debug("Before executing...");
+		logDebug("Before executing...");
 		try {
 			this.startTime = System.currentTimeMillis();
 			beforeExecuteInternal();
@@ -69,7 +68,7 @@ public abstract class Worker {
 	protected abstract void execute() throws Throwable;
 	
 	protected void afterExecute() {
-		log().debug("After executing...");
+		logDebug("After executing...");
 		try {
 			afterExecuteInternal();
 			if ( isRunning() ) {
@@ -109,7 +108,7 @@ public abstract class Worker {
 		} finally {
 			this.endTime = System.currentTimeMillis();
 			notifyAll();
-			log().debug(String.format("Finished in %.1f sec", getDuration() / 1000f));
+			logDebug(String.format("Finished in %.1f sec", getDuration() / 1000f));
 			onEnd();
 		}
 	}
@@ -177,7 +176,7 @@ public abstract class Worker {
 	}
 
 	private void handleException(Throwable t) {
-		log().error(String.format("Error running worker (status: %s): %s", status.name(), t.getMessage()), t);
+		logError(String.format("Error running worker (status: %s): %s", status.name(), t.getMessage()), t);
 		lastException = t;
 		errorMessage = t.getMessage();
 		changeStatus(Status.FAILED);
@@ -234,11 +233,27 @@ public abstract class Worker {
 		return this.id;
 	}
 
-	protected Log log() {
+	private Logger log() {
 		if (this.log == null) {
-			this.log = LogFactory.getLog(getClass());
+			this.log = Logger.getLogger(getClass().getName());
 		}
 		return this.log;
+	}
+	
+	protected void logDebug(String message) {
+		log().log(Level.FINE, message);
+	}
+	
+	protected void logInfo(String message) {
+		log().log(Level.INFO, message);
+	}
+	
+	protected void logWarning(String message) {
+		log().log(Level.WARNING, message);
+	}
+	
+	protected void logError(String message, Throwable throwable) {
+		log().log(Level.SEVERE, message, throwable);
 	}
 	
 	public String getErrorMessage() {

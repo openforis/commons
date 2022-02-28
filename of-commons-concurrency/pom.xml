@@ -4,18 +4,11 @@
 	<parent>
 		<groupId>org.openforis.commons</groupId>
 		<artifactId>of-commons</artifactId>
-		<version>0.1.30-SNAPSHOT</version>
+		<version>0.1.32-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>of-commons-concurrency</artifactId>
 	<packaging>jar</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.2</version>
-		</dependency>
-	</dependencies>
 
 </project>
