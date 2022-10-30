@@ -3,7 +3,7 @@ package org.openforis.commons.io.flat;
 public class Field {
 	
 	public enum Type {
-		STRING, INTEGER, DECIMAL, DATE, TIME
+		STRING, INTEGER, DECIMAL, DATE, TIME, IMAGE_BYTE_ARRAY
 	}
 	
 	String name;

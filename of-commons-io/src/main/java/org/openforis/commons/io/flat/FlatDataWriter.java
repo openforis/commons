@@ -59,26 +59,20 @@ public abstract class FlatDataWriter extends CsvProcessor implements Closeable {
 		writeHeaders(headers.toArray(new String[headers.size()]));
 	}
 	
-	public void writeHeaders(Field[] fields) {
+	public void writeHeaders(String[] headers) {
 		if ( headersWritten ) {
 			throw new IllegalStateException("Headers already written");
 		}
-		setFields(fields);
-		String[] headers = new String[fields.length];
-		for (int i = 0; i < fields.length; i++) {
-			Field field = fields[i];
-			headers[i] = field.getName();
-		}
-    	writeNext(headers);
-    	headersWritten = true;
-	}
-	
-	public void writeHeaders(String[] headers) {
-		Field[] fields = new Field[headers.length];
+		Field[] headersFields = new Field[headers.length];
 		for (int i = 0; i < headers.length; i++) {
-			fields[i] = new Field(headers[i], Type.STRING, i);
+			headersFields[i] = new Field(headers[i], Type.STRING, i);
 		}
-		writeHeaders(fields);
+		
+		setFields(headersFields);
+		
+    	writeNext(headers);
+    	
+    	headersWritten = true;
 	}
 
 	public long getLinesWritten() {
