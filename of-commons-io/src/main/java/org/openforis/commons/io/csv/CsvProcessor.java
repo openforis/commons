@@ -42,7 +42,7 @@ public abstract class CsvProcessor {
 		return fieldNames;
 	}
 	
-	protected void setFields(List<Field> fields) {
+	public void setFields(List<Field> fields) {
 		setFields(fields.toArray(new Field[fields.size()]));
 	}
 	
