@@ -97,6 +97,18 @@ public abstract class CollectionUtils {
 	    }
 	}
 	
+	public static <T, C extends Collection<T>>  List<T> filterIntoList(C collection, Predicate<T> predicate) {
+		List<T> result = new ArrayList<T>();
+		if (collection != null && predicate != null) {
+			for (T item : collection) {
+				if (predicate.evaluate(item)) {
+					result.add(item);
+				}
+			}
+		}
+		return result;
+	}
+	
 	public static <T> T find (Collection<T> items, Predicate<T> predicate) {
 		for (T item : items) {
 			if (predicate.evaluate(item)) {
@@ -222,6 +234,16 @@ public abstract class CollectionUtils {
 		List<T> result = new ArrayList<T>();
 		for (Integer index : indexes) {
 			result.add(source.get(index));
+		}
+		return result;
+	}
+	
+	public static <T> List<T> map(Collection<T> collection, Transformer<T> transformer) {
+		List<T> result = new ArrayList<T>();
+		if (collection == null || transformer == null) return result;
+		for (T item : collection) {
+			T transformedItem = transformer.transform(item);
+			result.add(transformedItem);
 		}
 		return result;
 	}
