@@ -1,7 +1,9 @@
 package org.openforis.concurrency;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +27,7 @@ public abstract class Worker {
 	private transient Throwable lastException;
 	private transient Logger log;
 	private transient List<WorkerStatusChangeListener> statusChangeListeners = new ArrayList<WorkerStatusChangeListener>();
+	private Map<String, Object> result;
 
 	public enum Status {
 		PENDING, RUNNING, COMPLETED, FAILED, ABORTED;
@@ -125,6 +128,7 @@ public abstract class Worker {
 		notifyAllStatusChangeListeners(event);
 		switch ( newStatus ) {
 		case COMPLETED:
+			prepareResult();
 			onCompleted();
 			break;
 		case FAILED:
@@ -138,6 +142,11 @@ public abstract class Worker {
 		}
 	}
 	
+	protected Map<String, Object> prepareResult() {
+		this.result = new HashMap<>();
+		return this.result;
+	}
+
 	protected void onEnd() {}
 	
 	protected void onCompleted() {}
@@ -274,6 +283,14 @@ public abstract class Worker {
 	
 	public void setWeight(int weight) {
 		this.weight = weight;
+	}
+	
+	public Map<String, Object> getResult() {
+		return result;
+	}
+	
+	public void setResult(Map<String, Object> result) {
+		this.result = result;
 	}
 	
 	protected void setErrorMessageArgs(String[] errorMessageArgs) {
