@@ -95,7 +95,7 @@ public abstract class Worker {
 	public String getName() {
 		return getClass().getSimpleName();
 	}
-
+	
 	protected synchronized void run() {
 		if (! isPending()) {
 			throw new IllegalStateException("Already run");
@@ -244,21 +244,25 @@ public abstract class Worker {
 
 	private Logger log() {
 		if (this.log == null) {
-			this.log = Logger.getLogger(getClass().getName());
+			this.log = Logger.getLogger(this.getName());
 		}
 		return this.log;
 	}
+
+	protected void logMessage(Level level, String message) {
+		log().logp(level, this.getName(), "log", message);
+	}
 	
 	protected void logDebug(String message) {
-		log().log(Level.FINE, message);
+		this.logMessage(Level.FINE, message);
 	}
 	
 	protected void logInfo(String message) {
-		log().log(Level.INFO, message);
+		this.logMessage(Level.INFO, message);
 	}
 	
 	protected void logWarning(String message) {
-		log().log(Level.WARNING, message);
+		this.logMessage(Level.WARNING, message);
 	}
 	
 	protected void logError(String message, Throwable throwable) {
