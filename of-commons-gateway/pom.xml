@@ -2,6 +2,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>of-commons-gateway</artifactId>
+	<name>Open Foris Commons Gateway</name>
 	<packaging>jar</packaging>
 
 	<parent>

@@ -6,4 +6,5 @@
     <version>0.1.35-SNAPSHOT</version>
   </parent>
   <artifactId>of-commons-jdbc</artifactId>
+  <name>Open Foris Commons JDBC</name>
 </project>

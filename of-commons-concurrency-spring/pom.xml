@@ -8,6 +8,7 @@
 	</parent>
 
 	<artifactId>of-commons-concurrency-spring</artifactId>
+	<name>Open Foris Commons Concurrency Spring</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

@@ -8,10 +8,10 @@
 
 	<name>Open Foris Commons</name>
 	<description>Library of common components</description>
-	<url>http://www.openforis.org</url>
+	<url>https://www.openforis.org</url>
 	<organization>
 		<name>Open Foris</name>
-		<url>www.openforis.org</url>
+		<url>https://www.openforis.org</url>
 	</organization>
 
 	<modules>
@@ -61,19 +61,19 @@
 			<name>Gino Miceli</name>
 			<email>gino.miceli@google.com</email>
 			<organization>Google</organization>
-			<organizationUrl>http://www.google.com</organizationUrl>
+			<organizationUrl>https://www.google.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Cosimo Togna</name>
 			<email>cosimo.togna@fao.org</email>
 			<organization>FAO of the UN</organization>
-			<organizationUrl>http://www.fao.org</organizationUrl>
+			<organizationUrl>https://www.fao.org</organizationUrl>
 		</developer>
 		<developer>
 			<name>Stefano Ricci</name>
 			<email>stefano.ricci@fao.org</email>
 			<organization>FAO of the UN</organization>
-			<organizationUrl>http://www.fao.org</organizationUrl>
+			<organizationUrl>https://www.fao.org</organizationUrl>
 		</developer>
 	</developers>
 

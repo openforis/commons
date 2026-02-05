@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>of-commons-concurrency</artifactId>
+	<name>Open Foris Commons Concurrency</name>
 	<packaging>jar</packaging>
-
 
 </project>
