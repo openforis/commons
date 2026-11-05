@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<!-- POI 6 requires Java 11 -->
+			<!-- POI 6 requires Java 17 -->
 			<version>5.5.1</version>
 		</dependency>
 		<dependency>
